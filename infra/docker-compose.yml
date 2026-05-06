@@ -1,0 +1,131 @@
+# ──────────────────────────────────────────────
+# Zoom-Out — Development Infrastructure
+# ──────────────────────────────────────────────
+# Usage: docker compose -f infra/docker-compose.yml --env-file .env up -d
+
+services:
+  # ──── PostgreSQL ────
+  postgres:
+    image: postgres:17-alpine
+    container_name: zoomout-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ──── Redis (required by LiveKit) ────
+  redis:
+    image: redis:7-alpine
+    container_name: zoomout-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ──── LiveKit SFU ────
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: zoomout-livekit
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    ports:
+      - "7880:7880"   # Client WebSocket
+      - "7881:7881"   # HTTP API
+      - "7882:7882"   # TCP TURN
+      - "50000-50060:50000-50060/udp"  # ICE/UDP media
+    volumes:
+      - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ──── LiveKit Egress (Recording) ────
+  livekit-egress:
+    image: livekit/egress:latest
+    container_name: zoomout-egress
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    environment:
+      EGRESS_CONFIG_STRING: |
+        api_key: ${LIVEKIT_API_KEY}
+        api_secret: ${LIVEKIT_API_SECRET}
+        ws_url: ws://livekit:7880
+        s3:
+          access_key: ${MINIO_ACCESS_KEY}
+          secret: ${MINIO_SECRET_KEY}
+          endpoint: http://minio:9000
+          bucket: ${MINIO_BUCKET_RECORDINGS}
+          force_path_style: true
+    depends_on:
+      - livekit
+      - minio
+
+  # ──── MinIO (S3-compatible Object Storage) ────
+  minio:
+    image: minio/minio:latest
+    container_name: zoomout-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──── MinIO Init (create buckets) ────
+  minio-init:
+    image: minio/mc:latest
+    container_name: zoomout-minio-init
+    depends_on:
+      minio:
+        condition: service_started
+    restart: "no"
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      mc alias set local http://minio:9000 $${MINIO_ACCESS_KEY} $${MINIO_SECRET_KEY};
+      mc mb --ignore-existing local/$${MINIO_BUCKET_RECORDINGS};
+      mc mb --ignore-existing local/transcriptions;
+      echo '✅ Buckets created successfully';
+      "
+
+  # ──── Faster-Whisper (AI Transcription) ────
+  whisper:
+    image: fedirz/faster-whisper-server:latest-cpu
+    container_name: zoomout-whisper
+    restart: unless-stopped
+    ports:
+      - "9090:8000"
+    volumes:
+      - whisper_models:/root/.cache/huggingface
+    environment:
+      WHISPER__MODEL: ${WHISPER_MODEL:-large-v3-turbo}
+      WHISPER__DEVICE: cpu
+
+volumes:
+  pg_data:
+  minio_data:
+  whisper_models:

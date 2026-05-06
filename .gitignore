@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.next/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Bun
+bun.lockb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Drizzle
+drizzle/migrations/meta/
+
+# Docker volumes (if local)
+infra/data/
+
+# Logs
+*.log
+
+# Skilld references (recreated by `skilld install`)
+.skilld

@@ -1,0 +1,22 @@
+# ──────────────────────────────────────────────
+# LiveKit Server Configuration (Development)
+# ──────────────────────────────────────────────
+
+port: 7880
+rtc:
+  port_range_start: 50000
+  port_range_end: 50060
+  use_external_ip: false
+
+redis:
+  address: redis:6379
+
+keys:
+  devkey: devsecretdevsecretdevsecretdevsecret
+
+room:
+  empty_timeout: 300  # 5 minutes
+  max_participants: 50
+
+logging:
+  level: info

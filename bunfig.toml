@@ -1,0 +1,7 @@
+[install]
+# Save exact versions for reproducibility
+exact = true
+
+[install.lockfile]
+# Use binary lockfile for speed
+save = true

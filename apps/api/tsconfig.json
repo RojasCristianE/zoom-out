@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "types": ["bun-types"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@db/*": ["./drizzle/*"]
+    }
+  },
+  "include": ["src", "drizzle"]
+}

@@ -1,0 +1,46 @@
+/* ──────────────────────────────────────────────
+   Zoom-Out — Global Styles
+   ────────────────────────────────────────────── */
+
+:root {
+  --color-bg: #0a0a0f;
+  --color-surface: #12121a;
+  --color-border: #1e1e2e;
+  --color-text: #e4e4e7;
+  --color-text-muted: #71717a;
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 8px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+}
