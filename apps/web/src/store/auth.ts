@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { User } from '@zoom-out/shared-types'
+import type { UserProfile } from '@zoom-out/shared-types'
 
 interface AuthState {
-  user: User | null
+  user: UserProfile | null
   token: string | null
-  setAuth: (user: User, token: string) => void
+  setAuth: (user: UserProfile, token: string) => void
   logout: () => void
   isAuthenticated: () => boolean
 }

@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// Environment Validation — Crash early if misconfigured
+// Validación de Entorno — Error inmediato si está mal configurado
 // ──────────────────────────────────────────────
 
 const requiredVars = [
@@ -19,14 +19,14 @@ const requiredVars = [
 const missing = requiredVars.filter((key) => !Bun.env[key])
 
 if (missing.length > 0) {
-  console.error('❌ Missing required environment variables:')
+  console.error('❌ Faltan variables de entorno obligatorias:')
   for (const key of missing) {
     console.error(`   - ${key}`)
   }
   process.exit(1)
 }
 
-// Type-safe env access after validation
+// Acceso tipado a env tras la validación
 function getEnv<T extends string>(key: T): string {
   return Bun.env[key]!
 }

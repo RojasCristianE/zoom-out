@@ -27,7 +27,16 @@ El proyecto utiliza **Eden Treaty** para compartir tipos entre el backend y el f
 - **Linter/Formatter:** Biome. Siempre ejecuta `bun run lint:fix` antes de confirmar cambios.
 - **TypeScript:** Configuración estricta definida en `tsconfig.base.json`.
 - **Variables de Env:** Se cargan automáticamente vía `bun --env-file .env`.
-- **Path Aliases:** Usa `@/` para `src/` y `@db/` para `drizzle/` (en el API). Evita imports relativos profundos (`../../`).
+- **Path Aliases (Monorepo Standard):**
+  - `@api/`: `apps/api/src/`
+  - `@web/`: `apps/web/src/`
+  - `@db/`: `apps/api/drizzle/`
+  - `@shared/`: `packages/shared-types/src/`
+  - `@validators/`: `packages/validators/src/`
+  - `@ui/`: `packages/ui/src/`
+  - *Evita imports relativos (`../../`) y usa siempre estos aliases.*
+- **Commits:** Deben ser en **español** siguiendo el estándar de Conventional Commits con tipos traducidos (`inicio`, `arreglo`, `tarea`, etc.).
+- **Idioma del Proyecto:** Todos los comentarios en el código y la documentación técnica (archivos .md) deben estar estrictamente en **español**.
 
 ## Building and Running
 
@@ -58,6 +67,25 @@ bun run dev:apps
 - **Auto-fix:** `bun run lint:fix`
 - **Typecheck:** `bun run typecheck`
 - **Tests:** `bun run test`
+
+## Git Flow & Hooks
+El proyecto utiliza **Lefthook** para gestionar git hooks.
+- **Pre-commit:** Ejecuta `biome check` y `typecheck` en paralelo, y sincroniza las memorias de engram (`engram sync`).
+- **Commit-msg:** Valida que el mensaje esté en español y siga el formato de commits convencionales.
+- **Post-commit:** Re-indexa el grafo de código en segundo plano (`codebase-memory-mcp index_repository`).
+- **Post-merge:** Importa memorias de engram compartidas y re-indexa el grafo de código.
+- **Pre-push:** Ejecuta todos los tests (`bun run test`).
+
+### Tipos de Commit (en español):
+- `inicio`: Nuevas funcionalidades (feat).
+- `arreglo`: Corrección de errores (fix).
+- `mejoras`: Mejoras de rendimiento o refactorización.
+- `docs`: Cambios en documentación.
+- `estilo`: Cambios de formato o estilos (CSS).
+- `refactor`: Refactorización de código.
+- `test`: Adición o modificación de pruebas.
+- `tarea`: Tareas de mantenimiento o configuración (chore).
+- `infra`: Cambios en CI/CD, Docker o configuración de build.
 
 ## Project Structure
 - `apps/api`: Backend ElysiaJS.

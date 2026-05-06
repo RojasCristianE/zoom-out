@@ -1,25 +1,25 @@
 import { Elysia } from 'elysia'
 import { eq } from 'drizzle-orm'
 import { createRoomBody, roomIdParam } from '@zoom-out/validators'
-import { requireRole } from '@/middleware/requireRole'
-import { db } from '@/lib/db'
-import { createLivekitToken } from '@/lib/livekit'
+import { requireRole } from '@api/middleware/requireRole'
+import { db } from '@api/lib/db'
+import { createLivekitToken } from '@api/lib/livekit'
 import { rooms } from '@db/schema'
 
 // ──────────────────────────────────────────────
-// Rooms Module — Protected routes
+// Módulo de Salas — Rutas protegidas
 // ──────────────────────────────────────────────
 
 export const roomsModule = new Elysia({ prefix: '/rooms' })
   .use(requireRole('admin', 'host', 'viewer'))
 
-  // List all rooms
+  // Listar todas las salas
   .get('/', async () => {
     const allRooms = await db.select().from(rooms).orderBy(rooms.createdAt)
     return { data: allRooms }
   })
 
-  // Create a room (uses user from guard)
+  // Crear una sala (usa el usuario del guard)
   .post(
     '/',
     async ({ body, user }: any) => {
@@ -41,7 +41,7 @@ export const roomsModule = new Elysia({ prefix: '/rooms' })
     { body: createRoomBody },
   )
 
-  // Join a room — returns a LiveKit token
+  // Unirse a una sala — devuelve un token de LiveKit
   .post(
     '/:id/join',
     async ({ params, user, set }: any) => {

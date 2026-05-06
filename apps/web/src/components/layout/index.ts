@@ -1,3 +1,3 @@
-// Layout components — Header, Sidebar, etc.
-// TODO: Implement shared layout components
+// Componentes de diseño — Header, Sidebar, etc.
+// Tarea: Implementar componentes de diseño compartidos
 export {}

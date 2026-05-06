@@ -9,7 +9,7 @@ export interface UserProfile {
   email: string
   displayName: string
   role: UserRole
-  avatarUrl?: string
+  avatarUrl: string | null
   createdAt: string
   updatedAt: string
 }

@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia'
-import { verifyJwt } from '@/lib/auth'
+import { verifyJwt } from '@api/lib/auth'
 import type { UserRole, AuthTokenPayload } from '@zoom-out/shared-types'
 
 // ──────────────────────────────────────────────

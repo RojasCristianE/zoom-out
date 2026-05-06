@@ -7,28 +7,27 @@
     "dev:apps": "bun --env-file .env --filter './apps/*' dev",
     "dev:api": "bun --env-file .env --filter @zoom-out/api dev",
     "dev:web": "bun --env-file .env --filter @zoom-out/web dev",
-
     "infra:up": "docker compose -f infra/docker-compose.yml --env-file .env up -d",
     "infra:down": "docker compose -f infra/docker-compose.yml down",
     "infra:logs": "docker compose -f infra/docker-compose.yml logs -f",
-
     "db:generate": "bun --filter @zoom-out/api drizzle-kit generate",
     "db:migrate": "bun --filter @zoom-out/api drizzle-kit migrate",
     "db:seed": "bun --env-file .env apps/api/scripts/seed.ts",
     "db:studio": "bun --filter @zoom-out/api drizzle-kit studio",
     "db:push": "bun --filter @zoom-out/api drizzle-kit push",
-
     "build": "bun --filter './packages/*' build && bun --filter './apps/*' build",
     "typecheck": "bun --filter '*' typecheck",
-
     "lint": "bunx biome check .",
     "lint:fix": "bunx biome check --write .",
     "format": "bunx biome format --write .",
-
     "test": "bun --filter '*' test",
-
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "setup": "cp -n .env.example .env 2>/dev/null; bun install && bun run infra:up && bun run db:migrate",
     "prepare": "npx skilld prepare || true"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "20.5.3",
+    "@commitlint/config-conventional": "20.5.3",
+    "lefthook": "2.1.6"
   }
 }

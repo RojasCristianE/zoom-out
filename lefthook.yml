@@ -1,0 +1,35 @@
+# Configuración de Lefthook
+# https://github.com/evilmartians/lefthook
+
+pre-commit:
+  parallel: true
+  commands:
+    biome-check:
+      glob: "*.{js,ts,jsx,tsx,json}"
+      run: bunx biome check --write {staged_files} && git add {staged_files}
+    typecheck:
+      run: bun run typecheck
+    engram-sync:
+      run: engram sync --project zoom-out 2>/dev/null || true && git add .engram/
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
+
+pre-push:
+  commands:
+    test:
+      run: bun run test
+
+post-commit:
+  commands:
+    codebase-reindex:
+      run: sh -c 'codebase-memory-mcp cli index_repository "{\"repo_path\":\"'$PWD'\"}" > /dev/null 2>&1 || true'
+
+post-merge:
+  commands:
+    engram-import:
+      run: engram sync --import --project zoom-out 2>/dev/null || true
+    codebase-reindex:
+      run: sh -c 'codebase-memory-mcp cli index_repository "{\"repo_path\":\"'$PWD'\"}" > /dev/null 2>&1 || true'

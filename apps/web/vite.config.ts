@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Proxy API requests to the Elysia backend in development
+      // Redirigir peticiones de API al backend de Elysia en desarrollo
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,

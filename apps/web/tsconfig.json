@@ -4,15 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "jsx": "react-jsx",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["bun-types"],
-    "verbatimModuleSyntax": false,
-    "declaration": false,
-    "declarationMap": false,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
   "include": ["src", "vite-env.d.ts"]
 }

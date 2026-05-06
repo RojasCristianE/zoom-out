@@ -12,7 +12,17 @@
     "declarationMap": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "lib": ["ESNext"]
+    "lib": ["ESNext"],
+    "types": ["bun-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@api/*": ["./apps/api/src/*"],
+      "@web/*": ["./apps/web/src/*"],
+      "@db/*": ["./apps/api/drizzle/*"],
+      "@shared/*": ["./packages/shared-types/src/*"],
+      "@validators/*": ["./packages/validators/src/*"],
+      "@ui/*": ["./packages/ui/src/*"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }

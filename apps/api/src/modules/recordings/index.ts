@@ -1,20 +1,20 @@
 import { Elysia } from 'elysia'
 import { eq } from 'drizzle-orm'
 import { recordingIdParam, listRecordingsQuery } from '@zoom-out/validators'
-import { requireRole } from '@/middleware/requireRole'
-import { db } from '@/lib/db'
-import { getPresignedUrl } from '@/lib/minio'
-import { env } from '@/lib/env'
+import { requireRole } from '@api/middleware/requireRole'
+import { db } from '@api/lib/db'
+import { getPresignedUrl } from '@api/lib/minio'
+import { env } from '@api/lib/env'
 import { recordings } from '@db/schema'
 
 // ──────────────────────────────────────────────
-// Recordings Module — Protected routes
+// Módulo de Grabaciones — Rutas protegidas
 // ──────────────────────────────────────────────
 
 export const recordingsModule = new Elysia({ prefix: '/recordings' })
   .use(requireRole('admin', 'host'))
 
-  // List recordings with optional room filter
+  // Listar grabaciones con filtro opcional por sala
   .get(
     '/',
     async ({ query }) => {
@@ -31,7 +31,7 @@ export const recordingsModule = new Elysia({ prefix: '/recordings' })
     { query: listRecordingsQuery },
   )
 
-  // Get a single recording with download URLs
+  // Obtener una grabación individual con URLs de descarga
   .get(
     '/:id',
     async ({ params, set }) => {

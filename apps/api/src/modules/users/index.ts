@@ -1,20 +1,20 @@
 import { Elysia, t } from 'elysia'
 import { eq } from 'drizzle-orm'
-import { requireRole } from '@/middleware/requireRole'
-import { db } from '@/lib/db'
+import { requireRole } from '@api/middleware/requireRole'
+import { db } from '@api/lib/db'
 import { users } from '@db/schema'
 import type { UserRole } from '@zoom-out/shared-types'
 import { signupBody } from '@zoom-out/validators'
-import { hashPassword } from '@/lib/auth'
+import { hashPassword } from '@api/lib/auth'
 
 // ──────────────────────────────────────────────
-// Users Module — Admin-only management
+// Módulo de Usuarios — Gestión exclusiva para administradores
 // ──────────────────────────────────────────────
 
 export const usersModule = new Elysia({ prefix: '/users' })
   .use(requireRole('admin'))
 
-  // Create new user (Admin only)
+  // Crear nuevo usuario (Solo Admin)
   .post(
     '/',
     async ({ body, set }) => {
@@ -52,7 +52,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
     { body: t.Intersect([signupBody, t.Object({ role: t.Optional(t.String()) })]) }
   )
 
-  // List all users
+  // Listar todos los usuarios
   .get('/', async () => {
     const allUsers = await db
       .select({
@@ -68,7 +68,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
     return { data: allUsers }
   })
 
-  // Update a user's role
+  // Actualizar el rol de un usuario
   .patch(
     '/:id/role',
     async ({ params, body, set }) => {

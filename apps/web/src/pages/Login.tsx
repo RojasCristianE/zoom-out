@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api } from '@/api/client'
-import { useAuthStore } from '@/store/auth'
+import { api } from '@web/api/client'
+import { useAuthStore } from '@web/store/auth'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -24,9 +24,12 @@ export default function Login() {
       })
 
       if (apiError) throw new Error(apiError.value?.message || 'Error al iniciar sesión')
-      if (data) {
+      
+      if (data?.user && data?.accessToken) {
         setAuth(data.user, data.accessToken)
         navigate('/')
+      } else {
+        throw new Error('Respuesta del servidor incompleta')
       }
     } catch (err: any) {
       setError(err.message)

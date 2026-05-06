@@ -1,6 +1,6 @@
-import { db } from '@/lib/db'
+import { db } from '@api/lib/db'
 import { users } from '@db/schema'
-import { hashPassword } from '@/lib/auth'
+import { hashPassword } from '@api/lib/auth'
 
 async function seed() {
   console.log('🌱 Seeding database...')

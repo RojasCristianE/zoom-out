@@ -1,12 +1,12 @@
 import { Elysia } from 'elysia'
 import { eq } from 'drizzle-orm'
 import { loginBody } from '@zoom-out/validators'
-import { db } from '@/lib/db'
-import { verifyPassword, signJwt } from '@/lib/auth'
+import { db } from '@api/lib/db'
+import { verifyPassword, signJwt } from '@api/lib/auth'
 import { users } from '@db/schema'
 
 // ──────────────────────────────────────────────
-// Auth Module — Public routes (no guard)
+// Módulo de Autenticación — Rutas públicas (sin guard)
 // ──────────────────────────────────────────────
 
 export const authModule = new Elysia({ prefix: '/auth' })
@@ -32,6 +32,9 @@ export const authModule = new Elysia({ prefix: '/auth' })
           email: user.email,
           displayName: user.displayName,
           role: user.role,
+          avatarUrl: user.avatarUrl,
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
         },
       }
     },

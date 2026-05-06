@@ -1,3 +1,3 @@
-// Video components — LiveKit wrappers
-// TODO: Implement VideoConference, ParticipantTile, etc.
+// Componentes de video — Wrappers de LiveKit
+// Tarea: Implementar VideoConference, ParticipantTile, etc.
 export {}
