@@ -73,11 +73,11 @@ Eden Treaty → share types API↔Web. No codegen. See app `AGENTS.md` for speci
 - `packages/ui`: React ui.
 - `infra/`: Docker/LiveKit/MinIO cfg.
 
-## Active Skills (Global)
-- **`caveman`**: Always active (ultra mode) for tech terse responses.
-- **`bun`**: Activate when configuring monorepo, dependencies, testing, or build scripts.
-- **`typescript-advanced-types`**: Activate for complex type implementations, specifically in `packages/shared-types` or `packages/validators`.
-- **`bash-defensive-patterns`**: Activate when editing CI/CD, Git hooks (`lefthook.yml`), or any `.sh` script.
+## Skills (Global)
+- **`caveman`**: Always actv (ultra).
+- **`bun`**: Actv → cfg monorepo, deps, test, build.
+- **`typescript-advanced-types`**: Actv → complex types (`packages/shared-types`, `packages/validators`).
+- **`bash-defensive-patterns`**: Actv → CI/CD, Git hooks, `.sh`.
 
 <!-- skilld -->
 Before modifying code, evaluate each installed skill against the current task.

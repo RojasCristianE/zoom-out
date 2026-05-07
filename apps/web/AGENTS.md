@@ -5,8 +5,8 @@
 - API Client: Eden Treaty consume `App` (`src/api/client.ts`). No codegen.
 - Schemas: `@zoom-out/validators` → client types.
 
-## Active Skills (Web)
-- **`frontend-design`**: Activate when creating UI components, pages, or working on layout/styling.
-- **`vercel-composition-patterns`**: Activate when refactoring React component architecture (compound components, context providers).
-- **`vercel-react-best-practices`**: Activate for performance optimization and React state management.
-- **`vite`**: Activate when modifying `vite.config.ts`, build pipelines, or Vite plugins.
+## Skills (Web)
+- **`frontend-design`**: Actv → UI components, pages, styling.
+- **`vercel-composition-patterns`**: Actv → refactor React arch (compound components, providers).
+- **`vercel-react-best-practices`**: Actv → perf opt, React state.
+- **`vite`**: Actv → `vite.config.ts`, build, Vite plugins.

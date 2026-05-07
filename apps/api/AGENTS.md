@@ -11,5 +11,5 @@
 - Mig: `bun run db:migrate`.
 - UI: `bun run db:studio`.
 
-## Active Skills (API)
-- **`typescript-advanced-types`**: Activate for Elysia route types, Drizzle schemas, and strict type safety.
+## Skills (API)
+- **`typescript-advanced-types`**: Actv → Elysia routes, Drizzle schemas, strict type.
