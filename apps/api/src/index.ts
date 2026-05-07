@@ -18,10 +18,10 @@ const api = new Elysia()
   .use(usersModule)
 
 const app = new Elysia()
-  .use(cors({ origin: true }))
+  .use(cors({ origin: env.WEB_URL }))
   .get('/', () => ({ 
     message: 'Zoom-Out API is running', 
-    web_app: 'http://localhost:5173',
+    web_app: env.WEB_URL,
     api_base: '/api' 
   }))
   .group('/api', app => app.use(api))

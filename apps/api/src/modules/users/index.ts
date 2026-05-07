@@ -36,7 +36,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
           email: body.email,
           passwordHash,
           displayName: body.displayName,
-          role: body.role as UserRole || 'viewer',
+          role: body.role || 'viewer',
         })
         .returning()
 
@@ -49,7 +49,14 @@ export const usersModule = new Elysia({ prefix: '/users' })
         }
       }
     },
-    { body: t.Intersect([signupBody, t.Object({ role: t.Optional(t.String()) })]) }
+    { 
+      body: t.Intersect([
+        signupBody, 
+        t.Object({ 
+          role: t.Optional(t.Union([t.Literal('admin'), t.Literal('host'), t.Literal('viewer')])) 
+        })
+      ]) 
+    }
   )
 
   // Listar todos los usuarios
@@ -81,7 +88,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
 
       const [updated] = await db
         .update(users)
-        .set({ role: body.role as UserRole, updatedAt: new Date() })
+        .set({ role: body.role, updatedAt: new Date() })
         .where(eq(users.id, params.id))
         .returning({
           id: users.id,

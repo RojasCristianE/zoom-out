@@ -14,6 +14,7 @@ const requiredVars = [
   'MINIO_BUCKET_RECORDINGS',
   'WHISPER_API_URL',
   'JWT_SECRET',
+  'WEB_URL',
 ] as const
 
 const missing = requiredVars.filter((key) => !Bun.env[key])
@@ -44,5 +45,6 @@ export const env = {
   MINIO_USE_SSL: Bun.env.MINIO_USE_SSL ?? 'false',
   WHISPER_API_URL: getEnv('WHISPER_API_URL'),
   JWT_SECRET: getEnv('JWT_SECRET'),
+  WEB_URL: getEnv('WEB_URL'),
   API_PORT: Bun.env.API_PORT ?? '3001',
 } as const

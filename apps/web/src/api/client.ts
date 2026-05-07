@@ -2,7 +2,8 @@ import { edenTreaty } from '@elysiajs/eden'
 import type { App } from '@zoom-out/api'
 import { useAuthStore } from '@web/store/auth'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '')
+if (!API_URL) throw new Error('VITE_API_URL is missing')
 
 // Usamos un Proxy para incluir dinámicamente el token en cada petición
 const dynamicHeaders = new Proxy({} as Record<string, string>, {
@@ -26,8 +27,8 @@ const dynamicHeaders = new Proxy({} as Record<string, string>, {
   }
 })
 
-export const api = edenTreaty<App>(API_URL, {
+export const api: ReturnType<typeof edenTreaty<App>> = edenTreaty<App>(API_URL, {
   $fetch: {
     headers: dynamicHeaders
   }
-}) as any // Cast explícito para evitar problemas de portabilidad en el tsc del monorepo
+})
