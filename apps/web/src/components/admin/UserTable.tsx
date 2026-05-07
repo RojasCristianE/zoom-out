@@ -11,7 +11,8 @@ import {
   TableHead, 
   TableBody, 
   TableCell, 
-  Button 
+  Button,
+  toast
 } from '@zoom-out/ui'
 
 type User = {
@@ -28,7 +29,7 @@ export function UserTable() {
     try {
       const { data, error } = await api.users.get()
       if (error) {
-        console.error('Failed to fetch users:', error.value)
+        toast.error('Fallo en la sincronización de usuarios')
         return
       }
       setUsers((data as any)?.data || [])
@@ -43,7 +44,12 @@ export function UserTable() {
     const newRole = user.role === 'admin' ? 'viewer' : 'admin'
     const { error } = await api.users[user.id].role.patch({ role: newRole })
     if (!error) {
+      toast.success(`Rol de ${user.displayName} actualizado`, {
+        description: `Nivel de acceso: ${newRole.toUpperCase()}`
+      })
       fetchUsers()
+    } else {
+      toast.error('Error al modificar privilegios')
     }
   }
 
@@ -52,47 +58,54 @@ export function UserTable() {
   }, [])
 
   return (
-    <Card className="glass">
-      <CardHeader>
-        <CardTitle className="text-xl font-bold">Usuarios</CardTitle>
+    <Card className="border-border/40 bg-card/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] rounded-2xl overflow-hidden">
+      <CardHeader className="border-b border-border/10 pb-6">
+        <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80">Directorio de Usuarios</CardTitle>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="p-0">
         {loading ? (
-          <p className="text-muted-foreground">Cargando usuarios...</p>
+          <div className="p-8 text-center animate-pulse">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Escaneando registros...</p>
+          </div>
         ) : (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
+            <TableHeader className="bg-muted/5">
+              <TableRow className="border-border/10 hover:bg-transparent">
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest h-12">Nombre de Usuario</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest h-12">Nivel de Acceso</TableHead>
+                <TableHead className="text-right text-[10px] font-bold uppercase tracking-widest h-12 px-6">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map(user => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.displayName}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
+                <TableRow key={user.id} className="border-border/5 hover:bg-white/2 transition-colors">
+                  <TableCell className="font-medium text-[13px] py-4">{user.displayName}</TableCell>
+                  <TableCell className="py-4">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
                       user.role === 'admin' 
-                        ? 'bg-rose-500/20 text-rose-400' 
-                        : 'bg-white/10 text-white'
+                        ? 'bg-primary text-primary-foreground border-primary' 
+                        : 'bg-muted/20 text-muted-foreground border-border/40'
                     }`}>
                       {user.role}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Button size="sm" variant="outline" onClick={() => toggleRole(user)}>
-                      Cambiar Rol
+                  <TableCell className="text-right py-4 px-6">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="border-border/40 h-8 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all"
+                      onClick={() => toggleRole(user)}
+                    >
+                      Modificar Privilegios
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
               {users.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                    No hay usuarios
+                  <TableCell colSpan={3} className="text-center py-16">
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30 italic">No hay registros de usuarios</p>
                   </TableCell>
                 </TableRow>
               )}

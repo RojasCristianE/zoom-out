@@ -49,64 +49,75 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[radial-gradient(circle_at_top_left,#1a1a2e_0%,#16213e_50%,#0f3460_100%)] p-4">
-      <Card className="glass w-full max-w-md border-white/10 shadow-2xl">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+    <div className="min-h-screen w-full flex items-center justify-center bg-background p-6 font-sans">
+      <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl font-black tracking-tighter text-primary uppercase">
             Zoom-Out
-          </CardTitle>
-          <CardDescription className="text-blue-200/60">
-            Bienvenido de nuevo. Inicia sesión para continuar.
-          </CardDescription>
-        </CardHeader>
-        
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-blue-200/70 ml-1">Email</label>
-              <Input
-                type="email"
-                placeholder="tu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-black/20 border-white/10 focus:border-blue-400 transition-colors"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-blue-200/70 ml-1">Contraseña</label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-black/20 border-white/10 focus:border-blue-400 transition-colors"
-              />
-            </div>
+          </h1>
+          <p className="text-muted-foreground/60 text-xs tracking-[0.2em] uppercase">
+            Aether Infrastructure Access
+          </p>
+        </div>
 
-            {error && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-sm text-center">
-                {error}
+        <Card className="border-border bg-card shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] rounded-2xl p-2">
+          <form onSubmit={handleSubmit}>
+            <CardHeader className="space-y-1 pb-4 pt-6 px-6">
+              <CardTitle className="text-lg font-bold tracking-tight">
+                Iniciar Sesión
+              </CardTitle>
+              <CardDescription className="text-muted-foreground/60 text-[13px]">
+                Credenciales requeridas para acceso administrativo.
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-5 px-6 pb-6">
+              <div className="space-y-2 group">
+                <label className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Email</label>
+                <Input
+                  type="email"
+                  placeholder="name@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-muted/10 border-border/40 focus:border-primary/40 focus:ring-0 transition-all duration-300 h-12 rounded-xl text-[13px]"
+                />
               </div>
-            )}
-          </CardContent>
-          
-          <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              disabled={loading} 
-              className="w-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-bold py-6 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {loading ? 'Cargando...' : 'Entrar'}
-            </Button>
-            <p className="text-xs text-center text-blue-200/40">
-              Sistema de videollamadas privado y seguro.
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+              
+              <div className="space-y-2 group">
+                <label className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Contraseña</label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-muted/10 border-border/40 focus:border-primary/40 focus:ring-0 transition-all duration-300 h-12 rounded-xl text-[13px]"
+                />
+              </div>
+
+              {error && (
+                <div className="bg-error/5 border border-error/20 text-error p-4 rounded-xl text-[12px] text-center font-medium animate-in shake-in">
+                  {error}
+                </div>
+              )}
+            </CardContent>
+            
+            <CardFooter className="flex flex-col space-y-6 px-6 pb-8">
+              <Button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full bg-primary text-primary-foreground font-black uppercase tracking-widest text-[11px] h-14 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-primary/10"
+              >
+                {loading ? 'Autenticando...' : 'Acceder'}
+              </Button>
+              <p className="text-[9px] text-center text-muted-foreground/30 uppercase tracking-[0.2em] leading-relaxed">
+                Secure & Private <br/> Video Communications Layer
+              </p>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   )
 }

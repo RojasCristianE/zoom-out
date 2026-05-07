@@ -2,30 +2,78 @@ import { useAuthStore } from '../store/auth'
 import { RoomList } from '../components/admin/RoomList'
 import { UserTable } from '../components/admin/UserTable'
 import { Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { 
+  toast, 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogTrigger,
+  Button
+} from '@zoom-out/ui'
 
 export default function Dashboard() {
   const user = useAuthStore(state => state.user)
 
+  useEffect(() => {
+    if (user) {
+      toast.success(`Bienvenido de vuelta, ${user.displayName}`, {
+        description: "Terminal de administración sincronizada.",
+      })
+    }
+  }, [user])
+
   if (user?.role !== 'admin') {
     return (
-      <div className="flex flex-col items-center justify-center pt-[20vh] text-center">
-        <h1 className="text-4xl font-bold text-rose-500 mb-4">Acceso Denegado</h1>
-        <p className="text-slate-400 max-w-md">
-          Solo los administradores tienen permisos para acceder a las herramientas de gestión.
-        </p>
+      <div className="flex flex-col items-center justify-center pt-[20vh] text-center space-y-6">
+        <div className="h-20 w-20 rounded-full border border-error/20 bg-error/5 flex items-center justify-center animate-pulse">
+           <span className="text-2xl text-error">!</span>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-black tracking-tight text-primary uppercase">Acceso Restringido</h1>
+          <p className="text-muted-foreground/60 text-sm max-w-sm tracking-wide">
+            Esta terminal requiere privilegios de nivel administrador para la gestión de infraestructura.
+          </p>
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="border-border/40 font-bold uppercase tracking-widest text-[10px] px-8 h-10 rounded-full hover:bg-white hover:text-black transition-all">
+              Solicitar Credenciales
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Protocolo de Acceso</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción enviará una solicitud de elevación de privilegios al sistema central. ¿Deseas proceder con la autenticación forzada?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abortar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => toast.info("Solicitud enviada al núcleo.")}>
+                Confirmar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     )
   }
 
   return (
-    <div className="space-y-10 max-w-7xl mx-auto">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-            Dashboard Administrativo
+    <div className="space-y-16 max-w-7xl mx-auto py-4">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-border/10 pb-10">
+        <div className="space-y-4">
+          <h1 className="text-5xl font-black tracking-tighter text-primary uppercase">
+            Control Center
           </h1>
-          <p className="text-slate-400 text-lg">
-            Gestiona la infraestructura, usuarios y sesiones de Zoom-Out.
+          <p className="text-muted-foreground/60 text-sm tracking-widest uppercase font-medium">
+            Management Layer / Infrastructure / Users
           </p>
         </div>
       </header>
