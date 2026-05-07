@@ -1,0 +1,1 @@
+/home/cristian/Software/zoom-out/AGENTS.md
