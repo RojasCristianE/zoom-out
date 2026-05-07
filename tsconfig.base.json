@@ -13,9 +13,7 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "lib": ["ESNext"],
-    "types": ["bun-types"],
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
+    "types": ["bun"],
     "paths": {
       "@api/*": ["./apps/api/src/*"],
       "@web/*": ["./apps/web/src/*"],

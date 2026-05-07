@@ -4,7 +4,7 @@ import { requireRole } from '@api/middleware/requireRole'
 import { db } from '@api/lib/db'
 import { users } from '@db/schema'
 import type { UserRole } from '@zoom-out/shared-types'
-import { signupBody } from '@zoom-out/validators'
+import { signupBody, UserRoleSchema, updateUserRoleBody, userIdParam } from '@zoom-out/validators'
 import { hashPassword } from '@api/lib/auth'
 
 // ──────────────────────────────────────────────
@@ -53,7 +53,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
       body: t.Intersect([
         signupBody, 
         t.Object({ 
-          role: t.Optional(t.Union([t.Literal('admin'), t.Literal('host'), t.Literal('viewer')])) 
+          role: t.Optional(UserRoleSchema) 
         })
       ]) 
     }
@@ -100,9 +100,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
       return updated
     },
     {
-      params: t.Object({ id: t.String() }),
-      body: t.Object({
-        role: t.Union([t.Literal('admin'), t.Literal('host'), t.Literal('viewer')]),
-      }),
+      params: userIdParam,
+      body: updateUserRoleBody,
     },
   )

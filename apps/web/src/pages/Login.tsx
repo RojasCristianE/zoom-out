@@ -2,6 +2,16 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@web/api/client'
 import { useAuthStore } from '@web/store/auth'
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle,
+  Button,
+  Input
+} from '@zoom-out/ui'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -39,173 +49,64 @@ export default function Login() {
   }
 
   return (
-    <div className="login-container">
-      <div className="login-glass-card">
-        <div className="login-header">
-          <h1>Zoom-Out</h1>
-          <p>Bienvenido de nuevo</p>
-        </div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[radial-gradient(circle_at_top_left,#1a1a2e_0%,#16213e_50%,#0f3460_100%)] p-4">
+      <Card className="glass w-full max-w-md border-white/10 shadow-2xl">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+            Zoom-Out
+          </CardTitle>
+          <CardDescription className="text-blue-200/60">
+            Bienvenido de nuevo. Inicia sesión para continuar.
+          </CardDescription>
+        </CardHeader>
+        
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-blue-200/70 ml-1">Email</label>
+              <Input
+                type="email"
+                placeholder="tu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="bg-black/20 border-white/10 focus:border-blue-400 transition-colors"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-blue-200/70 ml-1">Contraseña</label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="bg-black/20 border-white/10 focus:border-blue-400 transition-colors"
+              />
+            </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          <button type="submit" disabled={loading} className="primary-button">
-            {loading ? 'Cargando...' : 'Entrar'}
-          </button>
+            {error && (
+              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-sm text-center">
+                {error}
+              </div>
+            )}
+          </CardContent>
+          
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-bold py-6 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {loading ? 'Cargando...' : 'Entrar'}
+            </Button>
+            <p className="text-xs text-center text-blue-200/40">
+              Sistema de videollamadas privado y seguro.
+            </p>
+          </CardFooter>
         </form>
-
-        <div className="login-footer">
-          <p className="footer-text">
-            Sistema de videollamadas privado y seguro.
-          </p>
-        </div>
-      </div>
-
-      <style>{`
-        .login-container {
-          height: 100vh;
-          width: 100vw;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: radial-gradient(circle at top left, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-          color: white;
-        }
-
-        .login-glass-card {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 3rem;
-          border-radius: 24px;
-          width: 100%;
-          max-width: 400px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .login-header {
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-
-        .login-header h1 {
-          font-size: 2.5rem;
-          margin-bottom: 0.5rem;
-          background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .login-header p {
-          color: #94a3b8;
-          font-size: 0.9rem;
-        }
-
-        .login-form {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .form-group label {
-          font-size: 0.85rem;
-          color: #94a3b8;
-          font-weight: 500;
-        }
-
-        .form-group input {
-          background: rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 0.8rem 1rem;
-          border-radius: 12px;
-          color: white;
-          transition: all 0.2s;
-        }
-
-        .form-group input:focus {
-          outline: none;
-          border-color: #4facfe;
-          background: rgba(0, 0, 0, 0.3);
-        }
-
-        .primary-button {
-          background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-          color: white;
-          border: none;
-          padding: 1rem;
-          border-radius: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: transform 0.2s, opacity 0.2s;
-          margin-top: 1rem;
-        }
-
-        .primary-button:hover {
-          opacity: 0.9;
-          transform: translateY(-2px);
-        }
-
-        .primary-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        .error-message {
-          background: rgba(239, 68, 68, 0.1);
-          color: #f87171;
-          padding: 0.8rem;
-          border-radius: 8px;
-          font-size: 0.85rem;
-          text-align: center;
-        }
-
-        .login-footer {
-          margin-top: 2rem;
-          text-align: center;
-        }
-
-        .text-button {
-          background: none;
-          border: none;
-          color: #94a3b8;
-          font-size: 0.85rem;
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .text-button:hover {
-          color: #4facfe;
-        }
-      `}</style>
+      </Card>
     </div>
   )
 }

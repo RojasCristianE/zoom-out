@@ -4,7 +4,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "bun run infra:up && bun run dev:apps",
-    "dev:apps": "bun --env-file .env --filter './apps/*' dev",
+    "dev:apps": "bun --env-file .env --filter './apps/*' --parallel dev",
     "dev:api": "bun --env-file .env --filter @zoom-out/api dev",
     "dev:web": "bun --env-file .env --filter @zoom-out/web dev",
     "infra:up": "docker compose -f infra/docker-compose.yml --env-file .env up -d",
@@ -21,6 +21,7 @@
     "lint:fix": "bunx biome check --write .",
     "format": "bunx biome format --write .",
     "test": "bun --filter '*' test",
+    "knip": "knip",
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "setup": "cp -n .env.example .env 2>/dev/null; bun install && bun run infra:up && bun run db:migrate",
     "prepare": "npx skilld prepare || true"
@@ -28,6 +29,8 @@
   "devDependencies": {
     "@commitlint/cli": "20.5.3",
     "@commitlint/config-conventional": "20.5.3",
+    "@types/bun": "1.3.13",
+    "knip": "6.12.0",
     "lefthook": "2.1.6"
   }
 }

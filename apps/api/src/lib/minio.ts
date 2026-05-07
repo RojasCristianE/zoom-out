@@ -5,7 +5,7 @@ import { env } from './env'
 // MinIO S3 Client
 // ──────────────────────────────────────────────
 
-export const minioClient = new Client({
+const minioClient = new Client({
   endPoint: env.MINIO_ENDPOINT,
   port: Number(env.MINIO_PORT),
   useSSL: env.MINIO_USE_SSL === 'true',
@@ -27,7 +27,7 @@ export async function getPresignedUrl(
 /**
  * Ensure a bucket exists, create it if not.
  */
-export async function ensureBucket(bucket: string): Promise<void> {
+async function ensureBucket(bucket: string): Promise<void> {
   const exists = await minioClient.bucketExists(bucket)
   if (!exists) {
     await minioClient.makeBucket(bucket)

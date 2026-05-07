@@ -7,7 +7,7 @@ import { env } from './env'
 
 const livekitHost = env.LIVEKIT_URL.replace('ws://', 'http://').replace('wss://', 'https://')
 
-export const roomService = new RoomServiceClient(
+const roomService = new RoomServiceClient(
   livekitHost,
   env.LIVEKIT_API_KEY,
   env.LIVEKIT_API_SECRET,
