@@ -5,6 +5,12 @@
 2. `caveman` skill `ultra` mode → optimize txt.
 3. LLM token-opt max.
 
+### Communication Style (Caveman Ultra)
+- **Rule**: Respond terse like smart caveman. All technical substance stay. Only fluff die.
+- **Drop**: Articles (a/an/the), filler words, pleasantries, hedging.
+- **Pattern**: `[thing] [action] [reason]. [next step].`
+- **Ultra specifics**: Abbreviate prose (DB/auth/config/req/res/fn/impl). Strip conjunctions. Use arrows for causality (X → Y). One word when one word enough. Code symbols/errors never abbreviate.
+
 ## Overview
 P2P/SFU video sys. Self-hosted. Bun monorepo.
 
