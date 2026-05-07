@@ -10,8 +10,8 @@ import type { UserRole, AuthTokenPayload } from '@zoom-out/shared-types'
  * Middleware that extracts and verifies the JWT from the Authorization header,
  * then checks if the user has one of the allowed roles.
  */
-export function requireRole(...allowedRoles: UserRole[]) {
-  return new Elysia({ name: `guard:${allowedRoles.join(',')}` }).derive(
+export const requireRole = (...allowedRoles: UserRole[]) => (app: Elysia) =>
+  app.derive(
     async ({ headers, set }) => {
       const authHeader = headers.authorization
       if (!authHeader?.startsWith('Bearer ')) {
@@ -37,4 +37,3 @@ export function requireRole(...allowedRoles: UserRole[]) {
       return { user: payload }
     },
   )
-}

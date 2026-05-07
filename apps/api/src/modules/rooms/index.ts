@@ -22,7 +22,7 @@ export const roomsModule = new Elysia({ prefix: '/rooms' })
   // Crear una sala (usa el usuario del guard)
   .post(
     '/',
-    async ({ body, user }: any) => {
+    async ({ body, user }) => {
       const livekitRoomName = `room-${crypto.randomUUID().slice(0, 8)}`
 
       const [room] = await db
@@ -44,7 +44,7 @@ export const roomsModule = new Elysia({ prefix: '/rooms' })
   // Unirse a una sala — devuelve un token de LiveKit
   .post(
     '/:id/join',
-    async ({ params, user, set }: any) => {
+    async ({ params, user, set }) => {
       const [room] = await db.select().from(rooms).where(eq(rooms.id, params.id)).limit(1)
 
       if (!room) {
