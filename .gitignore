@@ -34,3 +34,6 @@ infra/data/
 
 # Skilld references (recreated by `skilld install`)
 .skilld
+
+# Conductor
+conductor/
