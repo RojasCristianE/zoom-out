@@ -9,7 +9,7 @@ export const BackgroundBeams = ({ className }: { className?: string }) => {
     <div
       ref={beamsRef}
       className={cn(
-        "absolute inset-0 z-0 h-full w-full overflow-hidden [mask-image:radial-gradient(ellipse_at_center,white,transparent)]",
+        "absolute inset-0 z-0 h-full w-full overflow-hidden mask-[radial-gradient(ellipse_at_center,white,transparent)]",
         className
       )}
     >
@@ -58,9 +58,9 @@ export const BackgroundBeams = ({ className }: { className?: string }) => {
 const BeamsCore = () => {
   return (
     <div className="absolute inset-0 z-0 h-full w-full opacity-30">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent animate-pulse" />
-      <div className="absolute top-0 left-1/4 h-full w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
-      <div className="absolute top-0 right-1/4 h-full w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-primary/5 to-transparent animate-pulse" />
+      <div className="absolute top-0 left-1/4 h-full w-px bg-linear-to-b from-transparent via-primary/20 to-transparent" />
+      <div className="absolute top-0 right-1/4 h-full w-px bg-linear-to-b from-transparent via-primary/20 to-transparent" />
     </div>
   );
 };

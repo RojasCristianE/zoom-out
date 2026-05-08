@@ -14,10 +14,12 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle, 
   AlertDialogTrigger,
-  Button
+  Button,
+  BentoGrid,
+  BentoGridItem
 } from '@zoom-out/ui'
 
-import { BackgroundBeams } from '@ui/index'
+import { BackgroundBeams, Spotlight } from '@ui/index'
 
 export default function Dashboard() {
   const user = useAuthStore(state => state.user)
@@ -34,6 +36,7 @@ export default function Dashboard() {
     return (
       <div className="relative flex min-h-[80vh] flex-col items-center justify-center text-center">
         <BackgroundBeams className="opacity-20" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
         <div className="relative z-10 space-y-6">
           <div className="mx-auto h-20 w-20 rounded-full border border-error/20 bg-error/5 flex items-center justify-center animate-pulse">
              <span className="text-2xl text-error font-bold">!</span>
@@ -71,10 +74,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="relative min-h-screen">
-      <BackgroundBeams className="opacity-10" />
+    <div className="relative min-h-screen overflow-hidden">
+      <BackgroundBeams className="opacity-20" />
+      <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
       <div className="relative z-10 space-y-16 max-w-7xl mx-auto py-8 px-6">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-border/10 pb-10">
+        <header className="relative flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-border/10 pb-10">
           <div className="space-y-4">
             <h1 className="text-5xl font-black tracking-tighter text-primary uppercase">
               Control Center
@@ -83,16 +87,35 @@ export default function Dashboard() {
               Management Layer / Infrastructure / Users
             </p>
           </div>
+          <div className="flex gap-4">
+             <Button variant="outline" className="rounded-full uppercase tracking-tighter text-xs font-bold px-6 border-border/20">Sync DB</Button>
+             <Button onClick={() => toast.info('Aún no funciona', { description: 'La creación de salas se implementará próximamente.' })} className="rounded-full uppercase tracking-tighter text-xs font-bold px-6 border-border/20">Nueva Sala</Button>
+          </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="backdrop-blur-sm rounded-xl">
-            <RoomList />
-          </div>
-          <div className="backdrop-blur-sm rounded-xl">
-            <UserTable />
-          </div>
-        </div>
+        <BentoGrid className="max-w-none">
+          <BentoGridItem
+            title="Live Sessions"
+            description="Active video rooms currently utilizing SFU resources."
+            header={<div className="flex flex-1 w-full min-h-24 rounded-xl bg-linear-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100 overflow-hidden p-2"><RoomList /></div>}
+            className="md:col-span-2 md:row-span-2"
+          />
+          <BentoGridItem
+            title="Network Health"
+            description="Real-time latency and packet loss metrics across edge nodes."
+            header={<div className="flex flex-1 w-full min-h-24 rounded-xl bg-linear-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100 p-4 font-mono text-[10px] text-muted-foreground/40">
+              [TRAFFIC_NODE_01]: 42ms<br/>
+              [TRAFFIC_NODE_02]: 12ms<br/>
+              [SFU_LOAD]: 12.4%
+            </div>}
+          />
+          <BentoGridItem
+            title="System Access"
+            description="Authorized terminal operators."
+            header={<div className="flex flex-1 w-full min-h-24 rounded-xl bg-linear-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100 overflow-hidden p-2"><UserTable /></div>}
+            className="md:col-span-1 md:row-span-2"
+          />
+        </BentoGrid>
       </div>
     </div>
   )
