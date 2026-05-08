@@ -2,16 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@web/api/client'
 import { useAuthStore } from '@web/store/auth'
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle,
-  Button,
-  Input
-} from '@zoom-out/ui'
+import { LoginForm } from '@zoom-out/ui'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -22,7 +13,7 @@ export default function Login() {
   const navigate = useNavigate()
   const setAuth = useAuthStore((state) => state.setAuth)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -49,74 +40,40 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background p-6 font-sans">
-      <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl font-black tracking-tighter text-primary uppercase">
-            Zoom-Out
-          </h1>
-          <p className="text-muted-foreground/60 text-xs tracking-[0.2em] uppercase">
-            Aether Infrastructure Access
-          </p>
+    <div className="grid min-h-svh lg:grid-cols-2 bg-background font-sans overflow-hidden">
+      <div className="flex flex-col gap-4 p-6 md:p-10 justify-center items-center relative z-20">
+        <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <LoginForm 
+            onSubmit={handleSubmit}
+            email={email}
+            setEmail={setEmail}
+            password={password}
+            setPassword={setPassword}
+            loading={loading}
+            error={error}
+          />
         </div>
-
-        <Card className="border-border bg-card shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] rounded-2xl p-2">
-          <form onSubmit={handleSubmit}>
-            <CardHeader className="space-y-1 pb-4 pt-6 px-6">
-              <CardTitle className="text-lg font-bold tracking-tight">
-                Iniciar Sesión
-              </CardTitle>
-              <CardDescription className="text-muted-foreground/60 text-[13px]">
-                Credenciales requeridas para acceso administrativo.
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="space-y-5 px-6 pb-6">
-              <div className="space-y-2 group">
-                <label className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Email</label>
-                <Input
-                  type="email"
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-muted/10 border-border/40 focus:border-primary/40 focus:ring-0 transition-all duration-300 h-12 rounded-xl text-[13px]"
-                />
-              </div>
-              
-              <div className="space-y-2 group">
-                <label className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Contraseña</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-muted/10 border-border/40 focus:border-primary/40 focus:ring-0 transition-all duration-300 h-12 rounded-xl text-[13px]"
-                />
-              </div>
-
-              {error && (
-                <div className="bg-error/5 border border-error/20 text-error p-4 rounded-xl text-[12px] text-center font-medium animate-in shake-in">
-                  {error}
-                </div>
-              )}
-            </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-6 px-6 pb-8">
-              <Button 
-                type="submit" 
-                disabled={loading} 
-                className="w-full bg-primary text-primary-foreground font-black uppercase tracking-widest text-[11px] h-14 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-primary/10"
-              >
-                {loading ? 'Autenticando...' : 'Acceder'}
-              </Button>
-              <p className="text-[9px] text-center text-muted-foreground/30 uppercase tracking-[0.2em] leading-relaxed">
-                Secure & Private <br/> Video Communications Layer
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
+      </div>
+      <div className="relative hidden bg-muted lg:block overflow-hidden border-l border-border/50 animate-in fade-in slide-in-from-right-12 duration-1000">
+        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-background/20 z-10" />
+        <div className="absolute inset-0 bg-primary/5 mix-blend-overlay z-10" />
+        <img
+          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop"
+          alt="Aether Background"
+          className="absolute inset-0 h-full w-full object-cover grayscale opacity-60 scale-105 hover:scale-110 transition-transform duration-[10s] ease-out"
+        />
+        <div className="absolute bottom-12 left-12 right-12 z-20 space-y-6">
+          <div className="h-px w-24 bg-primary/50" />
+          <blockquote className="space-y-4">
+            <p className="text-2xl font-black text-primary leading-tight tracking-tight uppercase">
+              Infraestructura <br/>
+              Aether <span className="text-muted-foreground/40 font-light text-lg">v4.0</span>
+            </p>
+            <p className="text-sm text-muted-foreground/60 leading-relaxed max-w-md uppercase tracking-widest font-bold">
+              Capa de comunicaciones privada y segura diseñada para control total.
+            </p>
+          </blockquote>
+        </div>
       </div>
     </div>
   )
