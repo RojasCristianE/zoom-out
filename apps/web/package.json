@@ -15,9 +15,13 @@
     "@zoom-out/api": "workspace:*",
     "@zoom-out/shared-types": "workspace:*",
     "@zoom-out/ui": "workspace:*",
+    "class-variance-authority": "0.7.1",
+    "date-fns": "4.1.0",
     "livekit-client": "^2.9.0",
+    "lucide-react": "1.14.0",
     "radix-ui": "1.4.3",
     "react": "^19.2.6",
+    "react-day-picker": "9.14.0",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.1.0",
     "zustand": "^5.0.0"

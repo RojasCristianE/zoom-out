@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --color-background: #000000;
   --color-foreground: #fafafa;
-  
+
   --color-card: #0a0a0a;
   --color-card-foreground: #fafafa;
-  
+
   --color-primary: #ffffff;
   --color-primary-foreground: #000000;
-  
+
   --color-secondary: rgba(255, 255, 255, 0.05);
   --color-secondary-foreground: #fafafa;
-  
+
   --color-muted: #121212;
   --color-muted-foreground: #a1a1aa;
-  
+
   --color-border: rgba(255, 255, 255, 0.08);
   --color-ring: rgba(255, 255, 255, 0.15);
-  
+
   --color-success: #10b981;
   --color-error: #ef4444;
-  
+
   --font-sans: "Inter", system-ui, sans-serif;
-  
+
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -40,4 +42,37 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
