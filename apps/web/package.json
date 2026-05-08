@@ -12,6 +12,7 @@
   "dependencies": {
     "@elysiajs/eden": "^1.4.2",
     "@livekit/components-react": "^2.7.0",
+    "@livekit/components-styles": "1.2.0",
     "@zoom-out/api": "workspace:*",
     "@zoom-out/shared-types": "workspace:*",
     "@zoom-out/ui": "workspace:*",

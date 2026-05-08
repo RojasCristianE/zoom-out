@@ -13,16 +13,20 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.2",
     "@zoom-out/shared-types": "workspace:*",
     "@zoom-out/validators": "workspace:*",
-    "elysia": "^1.4.28",
-    "@elysiajs/cors": "^1.4.2",
+    "bullmq": "5.76.6",
     "drizzle-orm": "^0.45.2",
-    "postgres": "^3.4.0",
+    "elysia": "^1.4.28",
+    "fluent-ffmpeg": "2.1.3",
+    "ioredis": "5.10.1",
     "livekit-server-sdk": "^2.9.0",
-    "minio": "^8.0.0"
+    "minio": "^8.0.0",
+    "postgres": "^3.4.0"
   },
   "devDependencies": {
+    "@types/fluent-ffmpeg": "2.1.28",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.10",
     "typescript": "^6.0.3"

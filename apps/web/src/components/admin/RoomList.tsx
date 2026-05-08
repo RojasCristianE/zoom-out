@@ -23,12 +23,13 @@ import {
   Label,
   toast
 } from '@zoom-out/ui'
+import { useNavigate } from 'react-router-dom'
 
 type Room = {
   id: string
   name: string
-  active?: boolean
-  hostId: string | null
+  status: 'waiting' | 'active' | 'ended'
+  livekitRoomName: string | null
   createdAt: string
 }
 
@@ -38,6 +39,7 @@ export function RoomList() {
   const [newRoomName, setNewRoomName] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [creating, setCreating] = useState(false)
+  const navigate = useNavigate()
 
   const fetchRooms = async () => {
     try {
@@ -52,6 +54,46 @@ export function RoomList() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleStartRoom = async (id: string) => {
+    const t = toast.loading('Iniciando sala...')
+    try {
+      const { error } = await api.rooms[id].start.post({})
+      if (!error) {
+        toast.dismiss(t)
+        toast.success('Sala iniciada')
+        fetchRooms()
+      } else {
+        toast.dismiss(t)
+        toast.error('Fallo al iniciar sala')
+      }
+    } catch (err) {
+      toast.dismiss(t)
+      toast.error('Error de conexión')
+    }
+  }
+
+  const handleEndRoom = async (id: string) => {
+    const t = toast.loading('Finalizando sala...')
+    try {
+      const { error } = await api.rooms[id].end.post({})
+      if (!error) {
+        toast.dismiss(t)
+        toast.success('Sala finalizada')
+        fetchRooms()
+      } else {
+        toast.dismiss(t)
+        toast.error('Fallo al finalizar sala')
+      }
+    } catch (err) {
+      toast.dismiss(t)
+      toast.error('Error de conexión')
+    }
+  }
+
+  const handleJoinRoom = (id: string) => {
+    navigate(`/rooms/${id}`)
   }
 
   const handleCreateRoom = async (e: React.FormEvent) => {
@@ -148,24 +190,49 @@ export function RoomList() {
                   <TableCell className="font-mono text-xs py-4">{room.name}</TableCell>
                   <TableCell className="py-4">
                     <div className="flex items-center gap-2">
-                      <div className={`h-1.5 w-1.5 rounded-full ${room.active ? 'bg-success animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-muted-foreground/20'}`} />
+                      <div className={`h-1.5 w-1.5 rounded-full ${
+                        room.status === 'active' ? 'bg-success animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
+                        room.status === 'waiting' ? 'bg-yellow-500' : 'bg-muted-foreground/20'
+                      }`} />
                       <span className="text-[10px] font-bold uppercase tracking-tighter">
-                        {room.active ? 'Online' : 'Standby'}
+                        {room.status}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell className="text-[10px] font-medium text-muted-foreground/60 py-4">
                     {new Date(room.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                   </TableCell>
-                  <TableCell className="text-right py-4 px-6">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="h-8 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-white/5"
-                      onClick={() => toast.info('Acceso restringido a la sala.')}
-                    >
-                      Terminal
-                    </Button>
+                  <TableCell className="text-right py-4 px-6 space-x-2">
+                    {room.status === 'waiting' && (
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-8 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-primary/10"
+                        onClick={() => handleStartRoom(room.id)}
+                      >
+                        Iniciar
+                      </Button>
+                    )}
+                    {room.status === 'active' && (
+                      <>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-8 text-[10px] font-bold uppercase tracking-widest text-success hover:bg-success/10"
+                          onClick={() => handleJoinRoom(room.id)}
+                        >
+                          Unirse
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-8 text-[10px] font-bold uppercase tracking-widest text-error hover:bg-error/10"
+                          onClick={() => handleEndRoom(room.id)}
+                        >
+                          Terminar
+                        </Button>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

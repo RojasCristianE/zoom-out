@@ -15,8 +15,13 @@ keys:
   devkey: devsecretdevsecretdevsecretdevsecret
 
 room:
-  empty_timeout: 300  # 5 minutes
+  empty_timeout: 300  # 5 minutos
   max_participants: 50
+
+webhook:
+  urls:
+    - http://host.docker.internal:3001/api/webhooks/livekit
+  api_key: devkey
 
 logging:
   level: info
