@@ -1,17 +1,14 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   LiveKitRoom,
   VideoConference,
+  PreJoin,
 } from '@livekit/components-react'
 import { api } from '@web/api/client'
 import { useRoomStore } from '@web/store/room'
 import RecordingControls from '@web/components/video/RecordingControls'
 import '@livekit/components-styles'
-
-// ──────────────────────────────────────────────
-// Página de Sala — Videollamada Custom
-// ──────────────────────────────────────────────
 
 const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || (
   window.location.hostname === 'localhost' 
@@ -24,20 +21,18 @@ export default function Room() {
   const navigate = useNavigate()
   const { connectionState, token, roomName, error, setConnection, setConnected, setError, reset } =
     useRoomStore()
+  const [preJoinComplete, setPreJoinComplete] = useState(false)
 
-  // Unirse a la sala al montar
   useEffect(() => {
     if (!id) return
 
     const joinRoom = async () => {
       try {
         const { data, error: apiError } = await api.rooms[id!].join.post({})
-
         if (apiError || !data) {
           setError(typeof apiError === 'string' ? apiError : 'Error al unirse a la sala')
           return
         }
-
         if ('token' in data && 'roomName' in data) {
           setConnection(data.token as string, data.roomName ?? id!)
         }
@@ -47,10 +42,7 @@ export default function Room() {
     }
 
     joinRoom()
-
-    return () => {
-      reset()
-    }
+    return () => reset()
   }, [id, setConnection, setError, reset])
 
   const handleDisconnected = useCallback(() => {
@@ -62,57 +54,44 @@ export default function Room() {
     setConnected()
   }, [setConnected])
 
-  // Estado: Error
   if (connectionState === 'error') {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <div className="h-16 w-16 rounded-full bg-error/10 border border-error/30 flex items-center justify-center">
-          <span className="text-2xl">✕</span>
-        </div>
-        <div className="text-center">
-          <h2 className="text-xl font-bold tracking-tighter mb-2 text-error">Error de conexión</h2>
-          <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate('/')}
-          className="px-6 py-2 rounded-md bg-muted border border-border hover:bg-muted/80 text-sm font-medium transition-all"
-        >
-          Volver al Dashboard
-        </button>
+        <h2 className="text-xl font-bold text-error">Error de conexión</h2>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <button type="button" onClick={() => navigate('/')} className="px-4 py-2 bg-muted rounded-md">Volver</button>
       </div>
     )
   }
 
-  // Estado: Cargando (sin token aún)
   if (!token || !roomName) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <div className="relative">
-          <div className="h-16 w-16 rounded-full border-2 border-border animate-spin border-t-primary" />
-        </div>
-        <div className="text-center">
-          <h2 className="text-xl font-bold tracking-tighter mb-2">Conectando a la sala</h2>
-          <p className="text-sm text-muted-foreground">Preparando tu conexión de video...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="h-16 w-16 rounded-full border-2 border-border animate-spin border-t-primary" />
+      </div>
+    )
+  }
+
+  if (!preJoinComplete) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <PreJoin
+          defaults={{ username: '', videoEnabled: true, audioEnabled: true }}
+          onValidate={() => {
+            setPreJoinComplete(true)
+            return true
+          }}
+        />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] -mx-6 md:-mx-12 -mt-6 md:-mt-12">
-      {/* Header con controles de grabación */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-background/80 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-          <span className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-            En vivo
-          </span>
-        </div>
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
+        <span className="text-xs uppercase">En vivo</span>
         {id && <RecordingControls roomId={id} />}
       </div>
-
-      {/* Video Custom UI */}
       <div className="flex-1 bg-black">
         <LiveKitRoom
           serverUrl={LIVEKIT_URL}
