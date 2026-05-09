@@ -62,21 +62,6 @@ export default function Room() {
     setConnected()
   }, [setConnected])
 
-  // Estado: Cargando
-  if (connectionState === 'idle' || connectionState === 'loading') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <div className="relative">
-          <div className="h-16 w-16 rounded-full border-2 border-border animate-spin border-t-primary" />
-        </div>
-        <div className="text-center">
-          <h2 className="text-xl font-bold tracking-tighter mb-2">Conectando a la sala</h2>
-          <p className="text-sm text-muted-foreground">Preparando tu conexión de video...</p>
-        </div>
-      </div>
-    )
-  }
-
   // Estado: Error
   if (connectionState === 'error') {
     return (
@@ -99,8 +84,20 @@ export default function Room() {
     )
   }
 
-  // Estado: Conectado — Render LiveKit Room Layout Custom
-  if (!token || !roomName) return null
+  // Estado: Cargando (sin token aún)
+  if (!token || !roomName) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+        <div className="relative">
+          <div className="h-16 w-16 rounded-full border-2 border-border animate-spin border-t-primary" />
+        </div>
+        <div className="text-center">
+          <h2 className="text-xl font-bold tracking-tighter mb-2">Conectando a la sala</h2>
+          <p className="text-sm text-muted-foreground">Preparando tu conexión de video...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] -mx-6 md:-mx-12 -mt-6 md:-mt-12">
