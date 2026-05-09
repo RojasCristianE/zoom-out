@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useAuthStore } from '../../store/auth'
 import { 
   Card, 
   CardContent, 
@@ -36,10 +37,9 @@ type Room = {
 export function RoomList() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [loading, setLoading] = useState(true)
-  const [newRoomName, setNewRoomName] = useState('')
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [creating, setCreating] = useState(false)
   const navigate = useNavigate()
+  const user = useAuthStore(state => state.user)
+  const isAdmin = user?.role === 'admin'
 
   const fetchRooms = async () => {
     try {
@@ -48,7 +48,8 @@ export function RoomList() {
         toast.error('Error al sincronizar salas')
         return
       }
-      setRooms((data as any)?.data || [])
+      const roomsData = (data as any)?.data || []
+      setRooms([...roomsData].reverse())
     } catch (e) {
       console.error(e)
     } finally {
@@ -93,42 +94,17 @@ export function RoomList() {
   }
 
   const handleJoinRoom = (id: string) => {
-    navigate(`/rooms/${id}`)
+    navigate(`/room/${id}`)
   }
 
-  const handleCreateRoom = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newRoomName) {
-      toast.error('Nombre de sala requerido')
-      return
-    }
-    
-    setCreating(true)
-    const t = toast.loading('Iniciando despliegue...')
-    
-    try {
-      const { error } = await api.rooms.post({ name: newRoomName })
-      
-      if (!error) {
-        toast.dismiss(t)
-        toast.success('Sala desplegada correctamente')
-        setNewRoomName('')
-        setIsDialogOpen(false)
-        fetchRooms()
-      } else {
-        toast.dismiss(t)
-        toast.error('Fallo en la creación de la sala')
-      }
-    } catch (err) {
-      toast.dismiss(t)
-      toast.error('Error de conexión')
-    } finally {
-      setCreating(false)
-    }
-  }
+  // handleCreateRoom removido (movido a Dashboard)
 
   useEffect(() => {
     fetchRooms()
+    
+    const handleRefresh = () => fetchRooms()
+    window.addEventListener('refresh-rooms', handleRefresh)
+    return () => window.removeEventListener('refresh-rooms', handleRefresh)
   }, [])
 
   return (
@@ -136,37 +112,7 @@ export function RoomList() {
       <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-border/10">
         <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/80">Salas Activas</CardTitle>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] h-9 px-4 rounded-lg">Nueva Sala</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle className="text-[10px] font-black uppercase tracking-[0.2em] mb-2">Configurar Nueva Sala</DialogTitle>
-              <DialogDescription className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-bold">
-                Asigne un identificador único para el despliegue del nuevo entorno de comunicación.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreateRoom} className="space-y-6 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Identificador de Sala</Label>
-                <Input
-                  id="name"
-                  placeholder="ej. conferencia-anual"
-                  value={newRoomName}
-                  onChange={(e) => setNewRoomName(e.target.value)}
-                  className="bg-muted/10 border-border/40 h-12 rounded-xl"
-                  required
-                />
-              </div>
-              <DialogFooter>
-                <Button type="submit" disabled={creating} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[11px]">
-                  {creating ? 'Iniciando...' : 'Confirmar Despliegue'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        {/* El Dialog se movió al Dashboard para mayor visibilidad */}
       </CardHeader>
       
       <CardContent className="p-0">
@@ -203,7 +149,7 @@ export function RoomList() {
                     {new Date(room.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                   </TableCell>
                   <TableCell className="text-right py-4 px-6 space-x-2">
-                    {room.status === 'waiting' && (
+                    {isAdmin && room.status === 'waiting' && (
                       <Button 
                         size="sm" 
                         variant="ghost" 
@@ -223,14 +169,16 @@ export function RoomList() {
                         >
                           Unirse
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="h-8 text-[10px] font-bold uppercase tracking-widest text-error hover:bg-error/10"
-                          onClick={() => handleEndRoom(room.id)}
-                        >
-                          Terminar
-                        </Button>
+                        {isAdmin && (
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-8 text-[10px] font-bold uppercase tracking-widest text-error hover:bg-error/10"
+                            onClick={() => handleEndRoom(room.id)}
+                          >
+                            Terminar
+                          </Button>
+                        )}
                       </>
                     )}
                   </TableCell>

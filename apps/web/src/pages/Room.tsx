@@ -3,20 +3,21 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   LiveKitRoom,
   VideoConference,
-  RoomAudioRenderer,
-  ControlBar,
 } from '@livekit/components-react'
-// @ts-ignore — CSS-only module sin declaraciones de tipo
-import '@livekit/components-styles'
 import { api } from '@web/api/client'
 import { useRoomStore } from '@web/store/room'
 import RecordingControls from '@web/components/video/RecordingControls'
+import '@livekit/components-styles'
 
 // ──────────────────────────────────────────────
-// Página de Sala — Videollamada LiveKit
+// Página de Sala — Videollamada Custom
 // ──────────────────────────────────────────────
 
-const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || 'ws://localhost:7880'
+const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || (
+  window.location.hostname === 'localhost' 
+    ? 'ws://localhost:7880' 
+    : `ws://${window.location.hostname}:7880`
+)
 
 export default function Room() {
   const { id } = useParams<{ id: string }>()
@@ -98,7 +99,7 @@ export default function Room() {
     )
   }
 
-  // Estado: Conectado — Render LiveKit VideoConference
+  // Estado: Conectado — Render LiveKit Room Layout Custom
   if (!token || !roomName) return null
 
   return (
@@ -114,21 +115,23 @@ export default function Room() {
         {id && <RecordingControls roomId={id} />}
       </div>
 
-      {/* VideoConference de LiveKit */}
+      {/* Video Custom UI */}
       <div className="flex-1 bg-black">
         <LiveKitRoom
           serverUrl={LIVEKIT_URL}
           token={token}
           connect={true}
+          video={true}
+          audio={true}
           onConnected={handleConnected}
           onDisconnected={handleDisconnected}
           data-lk-theme="default"
           style={{ height: '100%' }}
         >
           <VideoConference />
-          <RoomAudioRenderer />
         </LiveKitRoom>
       </div>
     </div>
   )
 }
+
