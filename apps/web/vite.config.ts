@@ -16,10 +16,12 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true,
+    allowedHosts: ['welfare-assume-lightweight-dance.trycloudflare.com'],
     proxy: {
       // Redirigir peticiones de API al backend de Elysia en desarrollo
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
