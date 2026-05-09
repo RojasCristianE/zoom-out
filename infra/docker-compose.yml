@@ -41,7 +41,7 @@ services:
     image: livekit/livekit-server:latest
     container_name: zoomout-livekit
     restart: unless-stopped
-    command: --config /etc/livekit.yaml
+    command: --config /etc/livekit.yaml --node-ip=192.168.0.19
     ports:
       - "7880:7880"   # Client WebSocket
       - "7881:7881"   # HTTP API
@@ -49,6 +49,8 @@ services:
       - "50000-50060:50000-50060/udp"  # ICE/UDP media
     volumes:
       - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       redis:
         condition: service_healthy
