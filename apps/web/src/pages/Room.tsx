@@ -1,19 +1,15 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import {
-  LiveKitRoom,
-  VideoConference,
-  PreJoin,
-} from '@livekit/components-react'
+import { LiveKitRoom, VideoConference } from '@livekit/components-react'
 import { api } from '@web/api/client'
 import { useRoomStore } from '@web/store/room'
 import RecordingControls from '@web/components/video/RecordingControls'
 import '@livekit/components-styles'
 
 const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || (
-  window.location.hostname === 'localhost' 
-    ? 'ws://localhost:7880' 
-    : `ws://${window.location.hostname}:7880`
+  window.location.hostname === 'localhost'
+    ? 'ws://localhost:7880'
+    : `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:7880`
 )
 
 export default function Room() {
@@ -21,7 +17,6 @@ export default function Room() {
   const navigate = useNavigate()
   const { connectionState, token, roomName, error, setConnection, setConnected, setError, reset } =
     useRoomStore()
-  const [preJoinComplete, setPreJoinComplete] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -68,20 +63,7 @@ export default function Room() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <div className="h-16 w-16 rounded-full border-2 border-border animate-spin border-t-primary" />
-      </div>
-    )
-  }
-
-  if (!preJoinComplete) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <PreJoin
-          defaults={{ username: '', videoEnabled: true, audioEnabled: true }}
-          onValidate={() => {
-            setPreJoinComplete(true)
-            return true
-          }}
-        />
+        <p className="mt-4 text-sm text-muted-foreground">Conectando a la sala...</p>
       </div>
     )
   }
@@ -110,4 +92,3 @@ export default function Room() {
     </div>
   )
 }
-

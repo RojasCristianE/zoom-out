@@ -4,26 +4,34 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@web': path.resolve(__dirname, './src'),
-      '@shared': path.resolve(__dirname, '../../packages/shared-types/src'),
-      '@validators': path.resolve(__dirname, '../../packages/validators/src'),
-      '@ui': path.resolve(__dirname, '../../packages/ui/src'),
+    plugins: [react(), tailwindcss()],
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+            "@web": path.resolve(__dirname, "./src"),
+            "@shared": path.resolve(
+                __dirname,
+                "../../packages/shared-types/src",
+            ),
+            "@validators": path.resolve(
+                __dirname,
+                "../../packages/validators/src",
+            ),
+            "@ui": path.resolve(__dirname, "../../packages/ui/src"),
+        },
     },
-  },
-  server: {
-    port: 5173,
-    host: true,
-    allowedHosts: ['welfare-assume-lightweight-dance.trycloudflare.com'],
-    proxy: {
-      // Redirigir peticiones de API al backend de Elysia en desarrollo
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
+    server: {
+        port: 5173,
+        host: true,
+        allowedHosts: [
+            "lpf4zvgf-5173.use2.devtunnels.ms",
+        ],
+        proxy: {
+            // Redirigir peticiones de API al backend de Elysia en desarrollo
+            "/api": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+            },
+        },
     },
-  },
-})
+});

@@ -194,6 +194,17 @@ export const roomsModule = new Elysia({ prefix: '/rooms' })
         return { code: 'INTERNAL_ERROR', message: 'La sala no tiene mapeo a LiveKit' }
       }
 
+      // Asegurar que la sala existe en LiveKit (puede haber cerrado por timeout)
+      try {
+        await listLivekitParticipants(room.livekitRoomName)
+      } catch {
+        // Sala no existe en LiveKit → re-crearla
+        console.log(`🔄 Re-creando sala LiveKit: ${room.livekitRoomName}`)
+        await createLivekitRoom(room.livekitRoomName, {
+          maxParticipants: room.maxParticipants,
+        })
+      }
+
       const token = await createLivekitToken(room.livekitRoomName, user.sub, {
         canPublish: user.role !== 'viewer',
         canSubscribe: true,

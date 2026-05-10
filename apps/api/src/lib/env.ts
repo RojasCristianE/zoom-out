@@ -46,5 +46,5 @@ export const env = {
   WHISPER_API_URL: getEnv('WHISPER_API_URL'),
   JWT_SECRET: getEnv('JWT_SECRET'),
   WEB_URL: getEnv('WEB_URL'),
-  API_PORT: Bun.env.API_PORT ?? '3001',
+  API_PORT: Bun.env.API_PORT ?? '3000',
 } as const

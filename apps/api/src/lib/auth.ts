@@ -13,7 +13,7 @@ const keyData = encoder.encode(env.JWT_SECRET)
 export async function signJwt(payload: Record<string, unknown>, expiresInSec = 3600): Promise<string> {
   const header = { alg: 'HS256', typ: 'JWT' }
   const now = Math.floor(Date.now() / 1000)
-  const fullPayload = { ...payload, iat: now, exp: now + expiresInSec }
+  const fullPayload = { ...payload, iat: now, exp: now + (expiresInSec || 86400) }
 
   const key = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
 

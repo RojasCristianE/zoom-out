@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia'
 import { eq } from 'drizzle-orm'
-import { loginBody } from '@zoom-out/validators'
+import { loginBody, signupBody } from '@zoom-out/validators'
 import { db } from '@api/lib/db'
-import { verifyPassword, signJwt } from '@api/lib/auth'
+import { verifyPassword, hashPassword, signJwt } from '@api/lib/auth'
 import { users } from '@db/schema'
 
 // ──────────────────────────────────────────────
@@ -39,4 +39,43 @@ export const authModule = new Elysia({ prefix: '/auth' })
       }
     },
     { body: loginBody },
+  )
+  .post(
+    '/signup',
+    async ({ body, set }) => {
+      // Verificar si el usuario ya existe
+      const [existingUser] = await db.select().from(users).where(eq(users.email, body.email)).limit(1)
+      if (existingUser) {
+        set.status = 409
+        return { code: 'CONFLICT', message: 'User already exists' }
+      }
+
+      const passwordHash = await hashPassword(body.password)
+      
+      const [user] = await db.insert(users).values({
+        email: body.email,
+        passwordHash,
+        displayName: body.displayName,
+        role: 'viewer' // Por defecto rol viewer
+      }).returning()
+
+      const accessToken = await signJwt(
+        { sub: user.id, email: user.email, role: user.role },
+        3600,
+      )
+
+      return {
+        accessToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName: user.displayName,
+          role: user.role,
+          avatarUrl: user.avatarUrl,
+          createdAt: user.createdAt.toISOString(),
+          updatedAt: user.updatedAt.toISOString(),
+        },
+      }
+    },
+    { body: signupBody }
   )

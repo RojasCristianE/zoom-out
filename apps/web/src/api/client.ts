@@ -2,33 +2,20 @@ import { edenTreaty } from '@elysiajs/eden'
 import type { App } from '@zoom-out/api'
 import { useAuthStore } from '@web/store/auth'
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '')
+const API_URL = import.meta.env.VITE_API_URL || (
+  import.meta.env.DEV 
+    ? `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port === '5173' ? '3000' : window.location.port}` : ''}/api` 
+    : ''
+)
 if (!API_URL) throw new Error('VITE_API_URL is missing')
 
-// Usamos un Proxy para incluir dinámicamente el token en cada petición
-const dynamicHeaders = new Proxy({} as Record<string, string>, {
-  get(_target, prop: string | symbol) {
-    if (typeof prop === 'string' && prop.toLowerCase() === 'authorization') {
-      const token = useAuthStore.getState().token
-      return token ? `Bearer ${token}` : undefined
-    }
-    return undefined
-  },
-  ownKeys() {
-    return ['Authorization']
-  },
-  getOwnPropertyDescriptor(_target, prop: string | symbol) {
-    if (typeof prop === 'string' && prop.toLowerCase() === 'authorization') {
-      const token = useAuthStore.getState().token
-      const value = token ? `Bearer ${token}` : undefined
-      return { enumerable: true, configurable: true, value }
-    }
-    return undefined
-  }
-})
-
 export const api: ReturnType<typeof edenTreaty<App>> = edenTreaty<App>(API_URL, {
-  $fetch: {
-    headers: dynamicHeaders
-  }
+  fetcher: (async (input: any, init: any) => {
+    const token = useAuthStore.getState().token
+    const headers = new Headers(init?.headers)
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
+    return fetch(input, { ...init, headers })
+  }) as typeof fetch
 })

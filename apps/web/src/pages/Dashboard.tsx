@@ -1,28 +1,70 @@
 import { useAuthStore } from '../store/auth'
+import { api } from '../api/client'
 import { RoomList } from '../components/admin/RoomList'
 import { UserTable } from '../components/admin/UserTable'
 import { Navigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { 
-  toast, 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger,
+  toast,
   Button,
   BentoGrid,
-  BentoGridItem
+  BentoGridItem,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Input,
+  Label,
 } from '@zoom-out/ui'
 
 import { BackgroundBeams, Spotlight } from '@ui/index'
 
 export default function Dashboard() {
   const user = useAuthStore(state => state.user)
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [newRoomName, setNewRoomName] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const fetchRooms = () => {
+    // Esto es un hack para refrescar la lista. 
+    // En una app real usaríamos un context o react-query.
+    window.dispatchEvent(new CustomEvent('refresh-rooms'))
+  }
+
+  const handleCreateRoom = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newRoomName) {
+      toast.error('Nombre de sala requerido')
+      return
+    }
+    
+    setCreating(true)
+    const t = toast.loading('Iniciando despliegue...')
+    
+    try {
+      const { error } = await api.rooms.post({ name: newRoomName })
+      
+      if (!error) {
+        toast.dismiss(t)
+        toast.success('Sala desplegada correctamente')
+        setNewRoomName('')
+        setIsDialogOpen(false)
+        fetchRooms()
+      } else {
+        toast.dismiss(t)
+        toast.error('Fallo en la creación de la sala')
+      }
+    } catch (err) {
+      toast.dismiss(t)
+      toast.error('Error de conexión')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   useEffect(() => {
     if (user) {
@@ -32,46 +74,7 @@ export default function Dashboard() {
     }
   }, [user])
 
-  if (user?.role !== 'admin') {
-    return (
-      <div className="relative flex min-h-[80vh] flex-col items-center justify-center text-center">
-        <BackgroundBeams className="opacity-20" />
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
-        <div className="relative z-10 space-y-6">
-          <div className="mx-auto h-20 w-20 rounded-full border border-error/20 bg-error/5 flex items-center justify-center animate-pulse">
-             <span className="text-2xl text-error font-bold">!</span>
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary uppercase">Acceso Restringido</h1>
-            <p className="text-muted-foreground/60 text-sm max-w-sm tracking-wide mx-auto">
-              Esta terminal requiere privilegios de nivel administrador para la gestión de infraestructura.
-            </p>
-          </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" className="border-border/40 font-bold uppercase tracking-widest text-[10px] px-8 h-10 rounded-full hover:bg-white hover:text-black transition-all">
-                Solicitar Credenciales
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Protocolo de Acceso</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción enviará una solicitud de elevación de privilegios al sistema central. ¿Deseas proceder con la autenticación forzada?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Abortar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => toast.info("Solicitud enviada al núcleo.")}>
-                  Confirmar
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-    )
-  }
+  const isAdmin = user?.role === 'admin'
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -87,10 +90,43 @@ export default function Dashboard() {
               Management Layer / Infrastructure / Users
             </p>
           </div>
-          <div className="flex gap-4">
-             <Button variant="outline" className="rounded-full uppercase tracking-tighter text-xs font-bold px-6 border-border/20">Sync DB</Button>
-             <Button onClick={() => toast.info('Aún no funciona', { description: 'La creación de salas se implementará próximamente.' })} className="rounded-full uppercase tracking-tighter text-xs font-bold px-6 border-border/20">Nueva Sala</Button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-4">
+               <Button variant="outline" className="rounded-full uppercase tracking-tighter text-xs font-bold px-6 border-border/20">Sync DB</Button>
+               
+               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="rounded-full uppercase tracking-tighter text-xs font-bold px-6 border-border/20">Nueva Sala</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle className="text-[10px] font-black uppercase tracking-[0.2em] mb-2">Configurar Nueva Sala</DialogTitle>
+                    <DialogDescription className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-bold">
+                      Asigne un identificador único para el despliegue del nuevo entorno de comunicación.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateRoom} className="space-y-6 pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Identificador de Sala</Label>
+                      <Input
+                        id="name"
+                        placeholder="ej. conferencia-anual"
+                        value={newRoomName}
+                        onChange={(e) => setNewRoomName(e.target.value)}
+                        className="bg-muted/10 border-border/40 h-12 rounded-xl"
+                        required
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" disabled={creating} className="w-full h-12 rounded-xl font-black uppercase tracking-widest text-[11px]">
+                        {creating ? 'Iniciando...' : 'Confirmar Despliegue'}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
         </header>
 
         <BentoGrid className="max-w-none">
@@ -109,12 +145,14 @@ export default function Dashboard() {
               [SFU_LOAD]: 12.4%
             </div>}
           />
-          <BentoGridItem
-            title="System Access"
-            description="Authorized terminal operators."
-            header={<div className="flex flex-1 w-full min-h-24 rounded-xl bg-linear-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100 overflow-hidden p-2"><UserTable /></div>}
-            className="md:col-span-1 md:row-span-2"
-          />
+          {isAdmin && (
+            <BentoGridItem
+              title="System Access"
+              description="Authorized terminal operators."
+              header={<div className="flex flex-1 w-full min-h-24 rounded-xl bg-linear-to-br from-neutral-200 dark:from-neutral-900 dark:to-neutral-800 to-neutral-100 overflow-hidden p-2"><UserTable /></div>}
+              className="md:col-span-1 md:row-span-2"
+            />
+          )}
         </BentoGrid>
       </div>
     </div>

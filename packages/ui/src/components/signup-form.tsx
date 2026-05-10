@@ -1,5 +1,4 @@
 import { GalleryVerticalEnd } from "lucide-react"
-
 import { cn } from "@ui/lib/utils"
 import { Button } from "@ui/components/button"
 import {
@@ -10,29 +9,33 @@ import {
 } from "@ui/components/field"
 import { Input } from "@ui/components/input"
 
-interface LoginFormProps extends Omit<React.ComponentProps<"div">, "onSubmit"> {
+interface SignupFormProps extends Omit<React.ComponentProps<"div">, "onSubmit"> {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   email: string
   setEmail: (v: string) => void
   password: string
   setPassword: (v: string) => void
+  displayName: string
+  setDisplayName: (v: string) => void
   loading?: boolean
   error?: string | null
   footer?: React.ReactNode
 }
 
-export function LoginForm({
+export function SignupForm({
   className,
   onSubmit,
   email,
   setEmail,
   password,
   setPassword,
+  displayName,
+  setDisplayName,
   loading,
   error,
   footer,
   ...props
-}: LoginFormProps) {
+}: SignupFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form onSubmit={onSubmit}>
@@ -41,13 +44,25 @@ export function LoginForm({
             <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <GalleryVerticalEnd className="size-6" />
             </div>
-            <h1 className="text-2xl font-black tracking-tight uppercase mt-2">Zoom-Out</h1>
+            <h1 className="text-2xl font-black tracking-tight uppercase mt-2">Crear Cuenta</h1>
             <FieldDescription className="text-xs uppercase tracking-widest opacity-50">
-              Aether Infrastructure Access
+              Únete a la Infraestructura Aether
             </FieldDescription>
           </div>
           
           <div className="grid gap-4">
+            <Field>
+              <FieldLabel htmlFor="displayName" className="text-[10px] uppercase tracking-widest font-bold opacity-50 ml-1">Nombre Completo</FieldLabel>
+              <Input
+                id="displayName"
+                type="text"
+                placeholder="Juan Pérez"
+                required
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="h-12 rounded-xl bg-muted/20 border-border/50 focus:border-primary/50 transition-all"
+              />
+            </Field>
             <Field>
               <FieldLabel htmlFor="email" className="text-[10px] uppercase tracking-widest font-bold opacity-50 ml-1">Email</FieldLabel>
               <Input
@@ -85,7 +100,7 @@ export function LoginForm({
               className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs transition-all hover:scale-[1.01] active:scale-[0.99]"
               disabled={loading}
             >
-              {loading ? "Autenticando..." : "Acceder"}
+              {loading ? "Creando cuenta..." : "Registrarse"}
             </Button>
           </div>
         </FieldGroup>
@@ -93,7 +108,7 @@ export function LoginForm({
       {footer}
       <FieldDescription className="px-6 text-center text-[10px] leading-relaxed uppercase tracking-tighter opacity-30">
         Secure & Private Video Communications Layer <br/>
-        Authorized Personnel Only
+        Join the Network
       </FieldDescription>
     </div>
   )

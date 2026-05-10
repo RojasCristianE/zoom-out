@@ -21,14 +21,23 @@ const api = new Elysia()
   .use(usersModule)
 
 const app = new Elysia()
-  .use(cors({ origin: env.WEB_URL }))
+  .use(
+    cors({
+      origin: true, // Permite cualquier origen en desarrollo
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    })
+  )
   .get('/', () => ({ 
     message: 'Zoom-Out API is running', 
     web_app: env.WEB_URL,
     api_base: '/api' 
   }))
   .group('/api', app => app.use(api))
-  .listen(Number(env.API_PORT) || 3001)
+  .listen({
+    port: Number(env.API_PORT) || 3000,
+    hostname: '0.0.0.0'
+  })
 
 console.log(`🚀 Zoom-Out API running at http://localhost:${app.server?.port}`)
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { api } from '@web/api/client'
 import { useAuthStore } from '@web/store/auth'
 import { LoginForm } from '@zoom-out/ui'
@@ -51,6 +51,14 @@ export default function Login() {
             setPassword={setPassword}
             loading={loading}
             error={error}
+            footer={
+              <div className="text-center text-xs text-muted-foreground uppercase tracking-widest font-bold mt-2">
+                ¿No tienes cuenta?{' '}
+                <Link to="/signup" className="text-primary hover:underline transition-all">
+                  Regístrate
+                </Link>
+              </div>
+            }
           />
         </div>
       </div>

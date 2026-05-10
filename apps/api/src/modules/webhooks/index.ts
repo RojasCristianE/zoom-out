@@ -38,6 +38,7 @@ export const webhooksModule = new Elysia({ prefix: '/webhooks' })
 
         case 'room_finished':
           console.log(`🏠 Sala finalizada en LiveKit: ${event.room?.name}`)
+          await handleRoomFinished(event)
           break
 
         case 'participant_joined':
@@ -114,4 +115,32 @@ async function handleEgressEnded(event: WebhookEvent) {
   })
   
   console.log(`📥 Trabajo de transcripción encolado para: ${recording.id}`)
+}
+
+/**
+ * Sincroniza el estado de la sala en DB cuando LiveKit la cierra
+ * (por timeout, manualmente, etc.)
+ */
+async function handleRoomFinished(event: WebhookEvent) {
+  const roomName = event.room?.name
+  if (!roomName) {
+    console.error('❌ room_finished sin room name')
+    return
+  }
+
+  const [updated] = await db
+    .update(rooms)
+    .set({
+      status: 'ended',
+      endedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(rooms.livekitRoomName, roomName))
+    .returning()
+
+  if (updated) {
+    console.log(`🔄 Sala sincronizada: ${updated.name} → ended`)
+  } else {
+    console.warn(`⚠️ No se encontró sala con livekitRoomName: ${roomName}`)
+  }
 }
