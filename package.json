@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "bun run infra:up && bun run dev:apps",
+    "dev": "bash scripts/dev.sh",
     "dev:apps": "bun --env-file .env --filter './apps/*' --parallel dev",
     "dev:api": "bun --env-file .env --filter @zoom-out/api dev",
     "dev:web": "bun --env-file .env --filter @zoom-out/web dev",
