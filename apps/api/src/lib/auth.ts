@@ -10,7 +10,7 @@ const keyData = encoder.encode(env.JWT_SECRET)
 /**
  * Sign a JWT payload using HMAC-SHA256.
  */
-export async function signJwt(payload: Record<string, unknown>, expiresInSec = 3600): Promise<string> {
+export async function signJwt(payload: Record<string, unknown>, expiresInSec = 30 * 24 * 3600): Promise<string> {
   const header = { alg: 'HS256', typ: 'JWT' }
   const now = Math.floor(Date.now() / 1000)
   const fullPayload = { ...payload, iat: now, exp: now + (expiresInSec || 86400) }

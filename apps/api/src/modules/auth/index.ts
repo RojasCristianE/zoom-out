@@ -22,7 +22,7 @@ export const authModule = new Elysia({ prefix: '/auth' })
 
       const accessToken = await signJwt(
         { sub: user.id, email: user.email, role: user.role },
-        3600,
+        30 * 24 * 3600, // 1 mes
       )
 
       return {
@@ -61,7 +61,7 @@ export const authModule = new Elysia({ prefix: '/auth' })
 
       const accessToken = await signJwt(
         { sub: user.id, email: user.email, role: user.role },
-        3600,
+        30 * 24 * 3600, // 1 mes
       )
 
       return {

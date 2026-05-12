@@ -11,11 +11,19 @@ if (!API_URL) throw new Error('VITE_API_URL is missing')
 
 export const api: ReturnType<typeof edenTreaty<App>> = edenTreaty<App>(API_URL, {
   fetcher: (async (input: any, init: any) => {
-    const token = useAuthStore.getState().token
+    const { token, logout } = useAuthStore.getState()
     const headers = new Headers(init?.headers)
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
-    return fetch(input, { ...init, headers })
+    
+    const response = await fetch(input, { ...init, headers })
+    
+    // Si el token es inválido o expiró, forzar logout para disparar redirección
+    if (response.status === 401) {
+      logout()
+    }
+
+    return response
   }) as typeof fetch
 })
