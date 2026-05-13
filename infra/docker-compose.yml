@@ -79,19 +79,14 @@ services:
     cap_add:
       - SYS_ADMIN
     environment:
-      EGRESS_CONFIG_STRING: |
-        api_key: ${LIVEKIT_API_KEY}
-        api_secret: ${LIVEKIT_API_SECRET}
-        ws_url: ws://livekit:7880
-        s3:
-          access_key: ${MINIO_ACCESS_KEY}
-          secret: ${MINIO_SECRET_KEY}
-          endpoint: http://minio:9000
-          bucket: ${MINIO_BUCKET_RECORDINGS}
-          force_path_style: true
+      EGRESS_CONFIG_FILE: /etc/egress.yaml
+    volumes:
+      - ./livekit/egress.yaml:/etc/egress.yaml:ro
     depends_on:
       - livekit
       - minio
+      - redis
+
 
   # ──── MinIO (S3-compatible Object Storage) ────
   minio:
@@ -121,6 +116,10 @@ services:
       minio:
         condition: service_started
     restart: "no"
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET_RECORDINGS: ${MINIO_BUCKET_RECORDINGS:-recordings}
     entrypoint: >
       /bin/sh -c "
       sleep 5;
@@ -140,7 +139,7 @@ services:
     volumes:
       - whisper_models:/root/.cache/huggingface
     environment:
-      WHISPER__MODEL: ${WHISPER_MODEL:-large-v3-turbo}
+      WHISPER__MODEL: ${WHISPER_MODEL:-tiny}
       WHISPER__DEVICE: cpu
 
 volumes:

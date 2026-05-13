@@ -98,6 +98,11 @@ export async function processRecordingTranscription(recordingId: string) {
     const audioBuffer = await extractAudioFromVideo(videoBuffer)
     console.log(`🎵 Audio extraído: ${Math.round(audioBuffer.length / 1024 / 1024)}MB`)
 
+    // 4.5. Guardar audio en MinIO
+    const audioKey = `${recording.roomId}/${recording.id}.wav`
+    await putObject(bucket, audioKey, audioBuffer, 'audio/wav')
+    console.log(`💾 Audio guardado: ${bucket}/${audioKey}`)
+
     // 5. Enviar a Whisper para transcripción
     console.log('🎙️ Enviando a Faster-Whisper para transcripción...')
     const { segments, language, duration } = await transcribeAudio(
@@ -121,6 +126,7 @@ export async function processRecordingTranscription(recordingId: string) {
       .update(recordings)
       .set({
         transcriptionKey,
+        audioKey,
         durationSeconds: Math.round(duration),
         fileSizeBytes,
         status: 'ready',

@@ -104,7 +104,8 @@ export async function startRoomRecording(roomName: string, filepath: string) {
   const s3Output = new S3Upload({
     accessKey: env.MINIO_ACCESS_KEY,
     secret: env.MINIO_SECRET_KEY,
-    endpoint: `http://${env.MINIO_ENDPOINT}:${env.MINIO_PORT}`,
+    // Egress corre dentro de Docker: usar hostname interno del servicio MinIO
+    endpoint: `http://${env.MINIO_INTERNAL_ENDPOINT}:${env.MINIO_PORT}`,
     bucket: env.MINIO_BUCKET_RECORDINGS,
     forcePathStyle: true,
   })
