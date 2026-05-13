@@ -29,6 +29,11 @@ drizzle/migrations/meta/
 # Docker volumes (if local)
 infra/data/
 
+# Certificados TLS locales (mkcert)
+infra/certs/*.pem
+infra/certs/*.crt
+infra/certs/*.key
+
 # Logs
 *.log
 

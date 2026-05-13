@@ -1,0 +1,23 @@
+{
+  debug
+}
+
+# Web app + API
+:443 {
+  tls /etc/caddy/certs/local.pem /etc/caddy/certs/local-key.pem
+
+  reverse_proxy host.docker.internal:5173 {
+    header_up Host {host}
+    header_up X-Real-IP {remote_host}
+  }
+}
+
+# LiveKit WSS
+:7443 {
+  tls /etc/caddy/certs/local.pem /etc/caddy/certs/local-key.pem
+
+  reverse_proxy livekit:7880 {
+    header_up Host {host}
+    header_up X-Real-IP {remote_host}
+  }
+}

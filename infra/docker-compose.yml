@@ -55,6 +55,22 @@ services:
       redis:
         condition: service_healthy
 
+  # ──── Caddy Reverse Proxy (HTTPS local dev) ────
+  caddy:
+    image: caddy:2-alpine
+    container_name: zoomout-caddy
+    restart: unless-stopped
+    ports:
+      - "443:443"    # Web app + API (HTTPS)
+      - "7443:7443"  # LiveKit WSS (señalización)
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/etc/caddy/certs:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - livekit
+
   # ──── LiveKit Egress (Recording) ────
   livekit-egress:
     image: livekit/egress:latest

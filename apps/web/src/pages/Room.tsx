@@ -8,11 +8,20 @@ import RoomLayout from '@web/components/video/RoomLayout'
 import RecordingControls from '@web/components/video/RecordingControls'
 import '@livekit/components-styles'
 
-const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || (
-  window.location.hostname === 'localhost'
-    ? 'ws://localhost:7880'
-    : `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:7880`
-)
+const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || (() => {
+  const { hostname, protocol, port } = window.location
+  // localhost directo (dev sin Caddy)
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'ws://localhost:7880'
+  }
+  // Acceso via Caddy con HTTPS (e.g. teléfono en LAN)
+  if (protocol === 'https:') {
+    return `wss://${hostname}:7443`
+  }
+  // HTTP sin proxy (fallback — LAN directo sin Caddy)
+  // Puerto de LiveKit es siempre 7880, independiente del puerto de la página
+  return `ws://${hostname}:7880`
+})()
 
 export default function Room() {
   const { id } = useParams<{ id: string }>()

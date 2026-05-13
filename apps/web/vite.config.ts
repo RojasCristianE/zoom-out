@@ -24,7 +24,10 @@ export default defineConfig({
         port: 5173,
         host: true,
         allowedHosts: [
-            "lpf4zvgf-5173.use2.devtunnels.ms",
+            "192.168.0.19",
+            "localhost",
+            "127.0.0.1",
+            "host.docker.internal",
         ],
         proxy: {
             // Redirigir peticiones de API al backend de Elysia en desarrollo
