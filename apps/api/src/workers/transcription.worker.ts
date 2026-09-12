@@ -7,10 +7,8 @@ import { env } from '@api/lib/env'
 // Worker de Transcripción — BullMQ
 // ──────────────────────────────────────────────
 
-// Configuración de Redis
-const redisConnection = new Redis({
-  host: 'localhost', // Docker compose mapea el redis al host en modo dev
-  port: 6379,
+// Configuración de Redis (REDIS_URL; por defecto redis local en modo dev)
+const redisConnection = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: null, // Requerido por BullMQ
 })
 
