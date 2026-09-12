@@ -34,6 +34,13 @@ infra/certs/*.pem
 infra/certs/*.crt
 infra/certs/*.key
 
+# Configuración de LiveKit generada por scripts/setup-lan.sh
+infra/livekit/livekit.yaml
+infra/livekit/egress.yaml
+
+# Artefactos locales (grabaciones y transcripciones)
+infra/outputs/
+
 # Logs
 *.log
 
