@@ -23,16 +23,13 @@ export default defineConfig({
     server: {
         port: 5173,
         host: true,
-        allowedHosts: [
-            "192.168.0.19",
-            "localhost",
-            "127.0.0.1",
-            "host.docker.internal",
-        ],
+        // El dev server solo se expone en la red local (detrás de Caddy)
+        allowedHosts: true,
         proxy: {
             // Redirigir peticiones de API al backend de Elysia en desarrollo
             "/api": {
-                target: "http://localhost:3000",
+                // API_PORT viene del .env cargado por `bun --env-file .env`
+                target: `http://localhost:${process.env.API_PORT ?? 3000}`,
                 changeOrigin: true,
             },
         },
