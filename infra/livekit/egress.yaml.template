@@ -1,0 +1,20 @@
+# ──────────────────────────────────────────────
+# LiveKit Egress — Plantilla
+# ──────────────────────────────────────────────
+# Renderizada por scripts/setup-lan.sh → infra/livekit/egress.yaml
+# No editar el .yaml generado: se sobrescribe en cada corrida.
+
+api_key: ${LIVEKIT_API_KEY}
+api_secret: ${LIVEKIT_API_SECRET}
+ws_url: ws://livekit:7880
+insecure: true
+
+redis:
+  address: redis:6379
+
+s3:
+  access_key: ${MINIO_ACCESS_KEY}
+  secret: ${MINIO_SECRET_KEY}
+  endpoint: http://${MINIO_INTERNAL_ENDPOINT}:${MINIO_PORT}
+  bucket: ${MINIO_BUCKET_RECORDINGS}
+  force_path_style: true
