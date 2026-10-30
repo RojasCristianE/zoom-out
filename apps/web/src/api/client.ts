@@ -2,15 +2,15 @@ import { treaty } from '@elysiajs/eden';
 import type { App } from '@zoom-out/api';
 import { useAuthStore } from '@web/store/auth';
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV
-    ? `${window.location.protocol}//${window.location.hostname}${
-        window.location.port ? `:${window.location.port === '5173' ? '3000' : window.location.port}` : ''
-      }/api`
-    : '/api');
+// Eden Treaty v2 requiere el origen completo (protocolo + host) para no interpretar la ruta relativa como un hostname
+const getBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/api`;
+  }
+  return import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+};
 
-export const api = treaty<App>(API_URL, {
+export const api = treaty<App>(getBaseUrl(), {
   onRequest: async (path, options) => {
     const { token } = useAuthStore.getState();
     if (token) {
@@ -26,4 +26,4 @@ export const api = treaty<App>(API_URL, {
       useAuthStore.getState().logout();
     }
   },
-}) as any; // Cast flexible de cliente para llamadas tipadas dinámicas
+}) as any;

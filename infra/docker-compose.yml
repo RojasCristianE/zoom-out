@@ -61,11 +61,14 @@ services:
     container_name: zoomout-caddy
     restart: unless-stopped
     ports:
+      - "80:80"      # HTTP (Let's Encrypt challenge & redirect)
       - "443:443"    # Web app + API (HTTPS)
       - "7443:7443"  # LiveKit WSS (señalización)
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./certs:/etc/caddy/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -90,7 +93,7 @@ services:
 
   # ──── MinIO (S3-compatible Object Storage) ────
   minio:
-    image: minio/minio:latest
+    image: cgr.dev/chainguard/minio:latest
     container_name: zoomout-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -110,7 +113,7 @@ services:
 
   # ──── MinIO Init (create buckets) ────
   minio-init:
-    image: minio/mc:latest
+    image: cgr.dev/chainguard/minio-client:latest
     container_name: zoomout-minio-init
     depends_on:
       minio:
@@ -171,3 +174,5 @@ volumes:
   minio_data:
   whisper_models:
   ollama_models:
+  caddy_data:
+  caddy_config:
