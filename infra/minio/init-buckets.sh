@@ -2,14 +2,23 @@
 # ──────────────────────────────────────────────
 # MinIO Bucket Initialization Script
 # ──────────────────────────────────────────────
-# This script is run by the minio-init container to create
-# the required buckets on first startup.
-
 set -e
 
-mc alias set local http://minio:9000 "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}"
+# Esperar a que MinIO responda
+until mc alias set local http://minio:9000 "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}"; do
+  echo "Esperando a MinIO..."
+  sleep 2
+done
 
-mc mb --ignore-existing local/"${MINIO_BUCKET_RECORDINGS:-recordings}"
-mc mb --ignore-existing local/transcriptions
+BUCKET="${MINIO_BUCKET_AUDIENCIAS:-audiencias}"
 
-echo "✅ MinIO buckets initialized successfully"
+# Crear bucket con Object Lock habilitado para soporte WORM judicial y versionado
+if mc ls "local/${BUCKET}" > /dev/null 2>&1; then
+  echo "Bucket local/${BUCKET} ya existe."
+else
+  mc mb --with-lock "local/${BUCKET}" || mc mb "local/${BUCKET}"
+  mc version enable "local/${BUCKET}" || true
+  echo "Bucket local/${BUCKET} creado y configurado."
+fi
+
+echo "✅ MinIO bucket judicial inicializado correctamente"

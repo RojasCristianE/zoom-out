@@ -119,15 +119,10 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET_RECORDINGS: ${MINIO_BUCKET_RECORDINGS:-recordings}
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      mc alias set local http://minio:9000 $${MINIO_ACCESS_KEY} $${MINIO_SECRET_KEY};
-      mc mb --ignore-existing local/$${MINIO_BUCKET_RECORDINGS};
-      mc mb --ignore-existing local/transcriptions;
-      echo '✅ Buckets created successfully';
-      "
+      MINIO_BUCKET_AUDIENCIAS: ${MINIO_BUCKET_AUDIENCIAS:-audiencias}
+    volumes:
+      - ./minio/init-buckets.sh:/init-buckets.sh:ro
+    entrypoint: ["/bin/sh", "/init-buckets.sh"]
 
   # ──── Faster-Whisper (AI Transcription) ────
   whisper:
@@ -139,10 +134,40 @@ services:
     volumes:
       - whisper_models:/root/.cache/huggingface
     environment:
-      WHISPER__MODEL: ${WHISPER_MODEL:-tiny}
+      WHISPER__MODEL: ${WHISPER_MODEL:-large-v3-turbo}
       WHISPER__DEVICE: cpu
+
+  # ──── Ollama (Nano LLM Autoalojado) ────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: zoomout-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h
+      OLLAMA_NUM_PARALLEL: 1
+
+  # ──── Ollama Init (Pull Model) ────
+  ollama-init:
+    image: curlimages/curl:latest
+    container_name: zoomout-ollama-init
+    depends_on:
+      - ollama
+    restart: "no"
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Esperando que Ollama esté listo...';
+      until curl -s http://ollama:11434/api/tags > /dev/null; do sleep 2; done;
+      echo 'Descargando modelo ${OLLAMA_MODEL:-gemma3:4b}...';
+      curl -s -X POST http://ollama:11434/api/pull -d '{\"name\":\"${OLLAMA_MODEL:-gemma3:4b}\"}' | tail -n 1;
+      echo '✅ Modelo descargado y listo';
+      "
 
 volumes:
   pg_data:
   minio_data:
   whisper_models:
+  ollama_models:
