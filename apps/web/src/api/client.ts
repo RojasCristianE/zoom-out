@@ -13,16 +13,15 @@ const getBaseUrl = (): string => {
 export const api = treaty<App>(getBaseUrl(), {
   onRequest: async (path, options) => {
     const { token } = useAuthStore.getState();
+    const headers = new Headers(options.headers as any);
     if (token) {
-      options.headers = {
-        ...options.headers,
-        Authorization: `Bearer ${token}`,
-      };
+      headers.set('Authorization', `Bearer ${token}`);
     }
+    options.headers = headers;
     return options;
   },
   onResponse: async (response) => {
-    if (response.status === 401) {
+    if (response.status === 401 && !response.url.includes('/auth/login')) {
       useAuthStore.getState().logout();
     }
   },

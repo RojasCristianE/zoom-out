@@ -2,6 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { api } from '@web/api/client';
 import { useNavigate } from 'react-router-dom';
 
+function formatearFecha(val: unknown): string {
+  if (!val) return '';
+  if (val instanceof Date) return val.toISOString().split('T')[0];
+  if (typeof val === 'string') return val.split('T')[0];
+  return String(val);
+}
+
+function formatearHora(val: unknown): string {
+  if (!val) return '';
+  if (typeof val === 'string') return val.slice(0, 5);
+  return String(val);
+}
+
 export default function BibliotecaPage() {
   const [arbol, setArbol] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState('');
@@ -77,23 +90,29 @@ export default function BibliotecaPage() {
             Resultados de Búsqueda ({resultados.length})
           </h2>
           <div className="space-y-2">
-            {resultados.map((r) => (
-              <div
-                key={r.segmentoId || r.audiencia?.id}
-                onClick={() => navigate(`/audiencia/${r.audienciaId || r.audiencia?.id}`)}
-                className="p-3 border border-border rounded hover:bg-accent/50 cursor-pointer text-sm"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold">{r.expedienteNumero || r.expediente?.numero}</span>
-                  <span className="text-xs text-muted-foreground">{r.fechaProgramada}</span>
+            {resultados.map((r, idx) => {
+              const audId = r.audienciaId || r.audiencia?.id;
+              const expNum = r.expedienteNumero || r.expediente?.numero;
+              const fecha = formatearFecha(r.fechaProgramada || r.audiencia?.fechaProgramada);
+
+              return (
+                <div
+                  key={r.segmentoId || audId || idx}
+                  onClick={() => audId && navigate(`/audiencia/${audId}`)}
+                  className="p-3 border border-border rounded hover:bg-accent/50 cursor-pointer text-sm"
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-semibold">{String(expNum || 'Expediente')}</span>
+                    <span className="text-xs text-muted-foreground">{fecha}</span>
+                  </div>
+                  {r.texto && (
+                    <p className="text-xs font-mono bg-muted/50 p-2 rounded text-foreground/80">
+                      "{String(r.texto)}"
+                    </p>
+                  )}
                 </div>
-                {r.texto && (
-                  <p className="text-xs font-mono bg-muted/50 p-2 rounded text-foreground/80">
-                    "{r.texto}"
-                  </p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -105,29 +124,38 @@ export default function BibliotecaPage() {
         </h2>
         {loading ? (
           <p className="text-sm text-muted-foreground">Cargando expedientes...</p>
+        ) : arbol.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No se encontraron expedientes registrados.</p>
         ) : (
           <div className="space-y-2">
-            {arbol.map((item, idx) => (
-              <div
-                key={idx}
-                onClick={() => navigate(`/audiencia/${item.audienciaId}`)}
-                className="p-3 border border-border rounded flex justify-between items-center hover:bg-accent/50 cursor-pointer text-sm"
-              >
-                <div>
-                  <span className="font-semibold">{item.expedienteNumero}</span>
-                  <span className="text-xs text-muted-foreground ml-2">
-                    ({item.materiaNombre} • {item.anio})
-                  </span>
-                  <p className="text-xs text-muted-foreground">{item.expedienteAsunto}</p>
+            {arbol.map((item, idx) => {
+              const fecha = formatearFecha(item.audienciaFecha);
+              const hora = formatearHora(item.audienciaHora);
+
+              return (
+                <div
+                  key={item.audienciaId || idx}
+                  onClick={() => item.audienciaId && navigate(`/audiencia/${item.audienciaId}`)}
+                  className="p-3 border border-border rounded flex justify-between items-center hover:bg-accent/50 cursor-pointer text-sm"
+                >
+                  <div>
+                    <span className="font-semibold">{String(item.expedienteNumero || '')}</span>
+                    <span className="text-xs text-muted-foreground ml-2">
+                      ({String(item.materiaNombre || '')} • {String(item.anio || '')})
+                    </span>
+                    <p className="text-xs text-muted-foreground">{String(item.expedienteAsunto || '')}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {fecha} {hora}
+                    </span>
+                    <div className="text-xs font-semibold text-primary uppercase">
+                      {String(item.audienciaEstado || '')}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-mono text-muted-foreground">
-                    {item.audienciaFecha} {item.audienciaHora}
-                  </span>
-                  <div className="text-xs font-semibold text-primary">{item.audienciaEstado}</div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
