@@ -1,11 +1,11 @@
 {
-  "id": "24b205ec-4458-40d9-833f-252b41121375",
+  "id": "3c11103d-0a43-4e46-841e-4df90911f514",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.recordings": {
-      "name": "recordings",
+    "public.audiencias": {
+      "name": "audiencias",
       "schema": "",
       "columns": {
         "id": {
@@ -15,66 +15,304 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "room_id": {
-          "name": "room_id",
+        "expediente_id": {
+          "name": "expediente_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "status": {
-          "name": "status",
-          "type": "recording_status",
+        "sala_id": {
+          "name": "sala_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo_audiencia_id": {
+          "name": "tipo_audiencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "juez_id": {
+          "name": "juez_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "secretario_id": {
+          "name": "secretario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "operador_id": {
+          "name": "operador_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fecha_programada": {
+          "name": "fecha_programada",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hora_inicio_estimada": {
+          "name": "hora_inicio_estimada",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hora_fin_estimada": {
+          "name": "hora_fin_estimada",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio_efectivo": {
+          "name": "inicio_efectivo",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fin_efectivo": {
+          "name": "fin_efectivo",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duracion_segundos": {
+          "name": "duracion_segundos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_audiencia",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'recording'"
+          "default": "'programada'"
         },
-        "egress_id": {
-          "name": "egress_id",
+        "observaciones": {
+          "name": "observaciones",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "video_key": {
-          "name": "video_key",
+        "livekit_room_name": {
+          "name": "livekit_room_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "audio_key": {
-          "name": "audio_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "transcription_key": {
-          "name": "transcription_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "duration_seconds": {
-          "name": "duration_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "file_size_bytes": {
-          "name": "file_size_bytes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "started_at": {
-          "name": "started_at",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
         },
-        "ended_at": {
-          "name": "ended_at",
+        "updated_at": {
+          "name": "updated_at",
           "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_audiencias_fecha": {
+          "name": "idx_audiencias_fecha",
+          "columns": [
+            {
+              "expression": "fecha_programada",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_audiencias_sala": {
+          "name": "idx_audiencias_sala",
+          "columns": [
+            {
+              "expression": "sala_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_audiencias_juez": {
+          "name": "idx_audiencias_juez",
+          "columns": [
+            {
+              "expression": "juez_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "audiencias_expediente_id_expedientes_id_fk": {
+          "name": "audiencias_expediente_id_expedientes_id_fk",
+          "tableFrom": "audiencias",
+          "tableTo": "expedientes",
+          "columnsFrom": [
+            "expediente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "audiencias_sala_id_salas_id_fk": {
+          "name": "audiencias_sala_id_salas_id_fk",
+          "tableFrom": "audiencias",
+          "tableTo": "salas",
+          "columnsFrom": [
+            "sala_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "audiencias_tipo_audiencia_id_tipos_audiencia_id_fk": {
+          "name": "audiencias_tipo_audiencia_id_tipos_audiencia_id_fk",
+          "tableFrom": "audiencias",
+          "tableTo": "tipos_audiencia",
+          "columnsFrom": [
+            "tipo_audiencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "audiencias_juez_id_users_id_fk": {
+          "name": "audiencias_juez_id_users_id_fk",
+          "tableFrom": "audiencias",
+          "tableTo": "users",
+          "columnsFrom": [
+            "juez_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "audiencias_secretario_id_users_id_fk": {
+          "name": "audiencias_secretario_id_users_id_fk",
+          "tableFrom": "audiencias",
+          "tableTo": "users",
+          "columnsFrom": [
+            "secretario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "audiencias_operador_id_users_id_fk": {
+          "name": "audiencias_operador_id_users_id_fk",
+          "tableFrom": "audiencias",
+          "tableTo": "users",
+          "columnsFrom": [
+            "operador_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "audiencias_livekit_room_name_unique": {
+          "name": "audiencias_livekit_room_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "livekit_room_name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.auditoria": {
+      "name": "auditoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accion": {
+          "name": "accion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurso_tipo": {
+          "name": "recurso_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurso_id": {
+          "name": "recurso_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip_origen": {
+          "name": "ip_origen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detalles": {
+          "name": "detalles",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -86,19 +324,885 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_auditoria_recurso": {
+          "name": "idx_auditoria_recurso",
+          "columns": [
+            {
+              "expression": "recurso_tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "recurso_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_auditoria_usuario": {
+          "name": "idx_auditoria_usuario",
+          "columns": [
+            {
+              "expression": "usuario_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "recordings_room_id_rooms_id_fk": {
-          "name": "recordings_room_id_rooms_id_fk",
-          "tableFrom": "recordings",
-          "tableTo": "rooms",
+        "auditoria_usuario_id_users_id_fk": {
+          "name": "auditoria_usuario_id_users_id_fk",
+          "tableFrom": "auditoria",
+          "tableTo": "users",
           "columnsFrom": [
-            "room_id"
+            "usuario_id"
           ],
           "columnsTo": [
             "id"
           ],
           "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.documentos": {
+      "name": "documentos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "audiencia_id": {
+          "name": "audiencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipo_documento",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_documento",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'borrador'"
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contenido_json": {
+          "name": "contenido_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contenido_markdown": {
+          "name": "contenido_markdown",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "s3_key_pdf": {
+          "name": "s3_key_pdf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sha256_pdf": {
+          "name": "sha256_pdf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "creado_por_id": {
+          "name": "creado_por_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aprobado_por_id": {
+          "name": "aprobado_por_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_documentos_audiencia": {
+          "name": "idx_documentos_audiencia",
+          "columns": [
+            {
+              "expression": "audiencia_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_documentos_tipo": {
+          "name": "idx_documentos_tipo",
+          "columns": [
+            {
+              "expression": "tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "documentos_audiencia_id_audiencias_id_fk": {
+          "name": "documentos_audiencia_id_audiencias_id_fk",
+          "tableFrom": "documentos",
+          "tableTo": "audiencias",
+          "columnsFrom": [
+            "audiencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "documentos_creado_por_id_users_id_fk": {
+          "name": "documentos_creado_por_id_users_id_fk",
+          "tableFrom": "documentos",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creado_por_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documentos_aprobado_por_id_users_id_fk": {
+          "name": "documentos_aprobado_por_id_users_id_fk",
+          "tableFrom": "documentos",
+          "tableTo": "users",
+          "columnsFrom": [
+            "aprobado_por_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.expedientes": {
+      "name": "expedientes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organo_judicial_id": {
+          "name": "organo_judicial_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "materia_id": {
+          "name": "materia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "anio": {
+          "name": "anio",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "asunto": {
+          "name": "asunto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "delito_o_motivo": {
+          "name": "delito_o_motivo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'activo'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_expedientes_anio": {
+          "name": "idx_expedientes_anio",
+          "columns": [
+            {
+              "expression": "anio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_expedientes_organo": {
+          "name": "idx_expedientes_organo",
+          "columns": [
+            {
+              "expression": "organo_judicial_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "expedientes_organo_judicial_id_organos_judiciales_id_fk": {
+          "name": "expedientes_organo_judicial_id_organos_judiciales_id_fk",
+          "tableFrom": "expedientes",
+          "tableTo": "organos_judiciales",
+          "columnsFrom": [
+            "organo_judicial_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "expedientes_materia_id_materias_id_fk": {
+          "name": "expedientes_materia_id_materias_id_fk",
+          "tableFrom": "expedientes",
+          "tableTo": "materias",
+          "columnsFrom": [
+            "materia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "expedientes_numero_unique": {
+          "name": "expedientes_numero_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "numero"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.grabaciones": {
+      "name": "grabaciones",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "audiencia_id": {
+          "name": "audiencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "egress_id": {
+          "name": "egress_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "s3_key": {
+          "name": "s3_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "s3_bucket": {
+          "name": "s3_bucket",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'audiencias'"
+        },
+        "s3_size_bytes": {
+          "name": "s3_size_bytes",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sha256": {
+          "name": "sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "formato": {
+          "name": "formato",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ogg_opus'"
+        },
+        "duracion_segundos": {
+          "name": "duracion_segundos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sample_rate": {
+          "name": "sample_rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 48000
+        },
+        "canales": {
+          "name": "canales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_grabacion",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'grabando'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "grabaciones_audiencia_id_audiencias_id_fk": {
+          "name": "grabaciones_audiencia_id_audiencias_id_fk",
+          "tableFrom": "grabaciones",
+          "tableTo": "audiencias",
+          "columnsFrom": [
+            "audiencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "grabaciones_audiencia_id_unique": {
+          "name": "grabaciones_audiencia_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "audiencia_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.marcadores": {
+      "name": "marcadores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "audiencia_id": {
+          "name": "audiencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timestamp_ms": {
+          "name": "timestamp_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipo_marcador",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "etiqueta": {
+          "name": "etiqueta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creado_por_id": {
+          "name": "creado_por_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_marcadores_audiencia_ts": {
+          "name": "idx_marcadores_audiencia_ts",
+          "columns": [
+            {
+              "expression": "audiencia_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "timestamp_ms",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "marcadores_audiencia_id_audiencias_id_fk": {
+          "name": "marcadores_audiencia_id_audiencias_id_fk",
+          "tableFrom": "marcadores",
+          "tableTo": "audiencias",
+          "columnsFrom": [
+            "audiencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "marcadores_creado_por_id_users_id_fk": {
+          "name": "marcadores_creado_por_id_users_id_fk",
+          "tableFrom": "marcadores",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creado_por_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.materias": {
+      "name": "materias",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'#2563eb'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "materias_codigo_unique": {
+          "name": "materias_codigo_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codigo"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.organos_judiciales": {
+      "name": "organos_judiciales",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "circunscripcion": {
+          "name": "circunscripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Managua'"
+        },
+        "municipio": {
+          "name": "municipio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Managua'"
+        },
+        "direccion": {
+          "name": "direccion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "activo": {
+          "name": "activo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "organos_judiciales_codigo_unique": {
+          "name": "organos_judiciales_codigo_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codigo"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.partes_procesales": {
+      "name": "partes_procesales",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "expediente_id": {
+          "name": "expediente_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "audiencia_id": {
+          "name": "audiencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cedula": {
+          "name": "cedula",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rol": {
+          "name": "rol",
+          "type": "rol_parte",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "institucion": {
+          "name": "institucion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "presente": {
+          "name": "presente",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_partes_expediente": {
+          "name": "idx_partes_expediente",
+          "columns": [
+            {
+              "expression": "expediente_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_partes_audiencia": {
+          "name": "idx_partes_audiencia",
+          "columns": [
+            {
+              "expression": "audiencia_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "partes_procesales_expediente_id_expedientes_id_fk": {
+          "name": "partes_procesales_expediente_id_expedientes_id_fk",
+          "tableFrom": "partes_procesales",
+          "tableTo": "expedientes",
+          "columnsFrom": [
+            "expediente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "partes_procesales_audiencia_id_audiencias_id_fk": {
+          "name": "partes_procesales_audiencia_id_audiencias_id_fk",
+          "tableFrom": "partes_procesales",
+          "tableTo": "audiencias",
+          "columnsFrom": [
+            "audiencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -182,8 +1286,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.rooms": {
-      "name": "rooms",
+    "public.reportes_diarios": {
+      "name": "reportes_diarios",
       "schema": "",
       "columns": {
         "id": {
@@ -193,54 +1297,444 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "room_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'waiting'"
-        },
-        "max_participants": {
-          "name": "max_participants",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 10
-        },
-        "created_by": {
-          "name": "created_by",
+        "organo_judicial_id": {
+          "name": "organo_judicial_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "livekit_room_name": {
-          "name": "livekit_room_name",
+        "sala_id": {
+          "name": "sala_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fecha": {
+          "name": "fecha",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_audiencias": {
+          "name": "total_audiencias",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "audiencias_realizadas": {
+          "name": "audiencias_realizadas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "audiencias_suspendidas": {
+          "name": "audiencias_suspendidas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "audiencias_canceladas": {
+          "name": "audiencias_canceladas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "duracion_total_minutos": {
+          "name": "duracion_total_minutos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "metricas_json": {
+          "name": "metricas_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "sintesis_llm": {
+          "name": "sintesis_llm",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "scheduled_at": {
-          "name": "scheduled_at",
-          "type": "timestamp with time zone",
+        "s3_key_pdf": {
+          "name": "s3_key_pdf",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "started_at": {
-          "name": "started_at",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_reportes_organo_fecha": {
+          "name": "idx_reportes_organo_fecha",
+          "columns": [
+            {
+              "expression": "organo_judicial_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "fecha",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "reportes_diarios_organo_judicial_id_organos_judiciales_id_fk": {
+          "name": "reportes_diarios_organo_judicial_id_organos_judiciales_id_fk",
+          "tableFrom": "reportes_diarios",
+          "tableTo": "organos_judiciales",
+          "columnsFrom": [
+            "organo_judicial_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reportes_diarios_sala_id_salas_id_fk": {
+          "name": "reportes_diarios_sala_id_salas_id_fk",
+          "tableFrom": "reportes_diarios",
+          "tableTo": "salas",
+          "columnsFrom": [
+            "sala_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.salas": {
+      "name": "salas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "organo_judicial_id": {
+          "name": "organo_judicial_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacidad": {
+          "name": "capacidad",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 20
+        },
+        "ip_microfono": {
+          "name": "ip_microfono",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "ended_at": {
-          "name": "ended_at",
+        "activa": {
+          "name": "activa",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "salas_organo_judicial_id_organos_judiciales_id_fk": {
+          "name": "salas_organo_judicial_id_organos_judiciales_id_fk",
+          "tableFrom": "salas",
+          "tableTo": "organos_judiciales",
+          "columnsFrom": [
+            "organo_judicial_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tipos_audiencia": {
+      "name": "tipos_audiencia",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "materia_id": {
+          "name": "materia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duracion_estimada_minutos": {
+          "name": "duracion_estimada_minutos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 60
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tipos_audiencia_materia_id_materias_id_fk": {
+          "name": "tipos_audiencia_materia_id_materias_id_fk",
+          "tableFrom": "tipos_audiencia",
+          "tableTo": "materias",
+          "columnsFrom": [
+            "materia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transcripcion_segmentos": {
+      "name": "transcripcion_segmentos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "transcripcion_id": {
+          "name": "transcripcion_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio_ms": {
+          "name": "inicio_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fin_ms": {
+          "name": "fin_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "texto": {
+          "name": "texto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hablante": {
+          "name": "hablante",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confianza": {
+          "name": "confianza",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_segmentos_transcripcion": {
+          "name": "idx_segmentos_transcripcion",
+          "columns": [
+            {
+              "expression": "transcripcion_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_segmentos_fts": {
+          "name": "idx_segmentos_fts",
+          "columns": [
+            {
+              "expression": "to_tsvector('spanish', \"texto\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "transcripcion_segmentos_transcripcion_id_transcripciones_id_fk": {
+          "name": "transcripcion_segmentos_transcripcion_id_transcripciones_id_fk",
+          "tableFrom": "transcripcion_segmentos",
+          "tableTo": "transcripciones",
+          "columnsFrom": [
+            "transcripcion_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transcripciones": {
+      "name": "transcripciones",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "audiencia_id": {
+          "name": "audiencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grabacion_id": {
+          "name": "grabacion_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idioma": {
+          "name": "idioma",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'es'"
+        },
+        "modelo": {
+          "name": "modelo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'large-v3-turbo'"
+        },
+        "tiempo_procesamiento_segundos": {
+          "name": "tiempo_procesamiento_segundos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "estado_transcripcion",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendiente'"
+        },
+        "texto_completo": {
+          "name": "texto_completo",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -261,27 +1755,40 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "rooms_created_by_users_id_fk": {
-          "name": "rooms_created_by_users_id_fk",
-          "tableFrom": "rooms",
-          "tableTo": "users",
+        "transcripciones_audiencia_id_audiencias_id_fk": {
+          "name": "transcripciones_audiencia_id_audiencias_id_fk",
+          "tableFrom": "transcripciones",
+          "tableTo": "audiencias",
           "columnsFrom": [
-            "created_by"
+            "audiencia_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "transcripciones_grabacion_id_grabaciones_id_fk": {
+          "name": "transcripciones_grabacion_id_grabaciones_id_fk",
+          "tableFrom": "transcripciones",
+          "tableTo": "grabaciones",
+          "columnsFrom": [
+            "grabacion_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "rooms_livekit_room_name_unique": {
-          "name": "rooms_livekit_room_name_unique",
+        "transcripciones_audiencia_id_unique": {
+          "name": "transcripciones_audiencia_id_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "livekit_room_name"
+            "audiencia_id"
           ]
         }
       },
@@ -299,6 +1806,12 @@
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "organo_judicial_id": {
+          "name": "organo_judicial_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         },
         "email": {
           "name": "email",
@@ -320,17 +1833,24 @@
         },
         "role": {
           "name": "role",
-          "type": "user_role",
+          "type": "rol_usuario",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'viewer'"
+          "default": "'consulta'"
         },
         "avatar_url": {
           "name": "avatar_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "activo": {
+          "name": "activo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         },
         "created_at": {
           "name": "created_at",
@@ -348,7 +1868,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "users_organo_judicial_id_organos_judiciales_id_fk": {
+          "name": "users_organo_judicial_id_organos_judiciales_id_fk",
+          "tableFrom": "users",
+          "tableTo": "organos_judiciales",
+          "columnsFrom": [
+            "organo_judicial_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_unique": {
@@ -365,32 +1899,105 @@
     }
   },
   "enums": {
-    "public.recording_status": {
-      "name": "recording_status",
+    "public.estado_audiencia": {
+      "name": "estado_audiencia",
       "schema": "public",
       "values": [
-        "recording",
-        "processing",
-        "ready",
-        "failed"
+        "programada",
+        "en_curso",
+        "en_pausa",
+        "finalizada",
+        "cancelada",
+        "reprogramada"
       ]
     },
-    "public.room_status": {
-      "name": "room_status",
+    "public.estado_documento": {
+      "name": "estado_documento",
       "schema": "public",
       "values": [
-        "waiting",
-        "active",
-        "ended"
+        "borrador",
+        "aprobado",
+        "firmado",
+        "archivado"
       ]
     },
-    "public.user_role": {
-      "name": "user_role",
+    "public.estado_grabacion": {
+      "name": "estado_grabacion",
+      "schema": "public",
+      "values": [
+        "grabando",
+        "procesando",
+        "completada",
+        "error"
+      ]
+    },
+    "public.estado_transcripcion": {
+      "name": "estado_transcripcion",
+      "schema": "public",
+      "values": [
+        "pendiente",
+        "procesando",
+        "completada",
+        "fallida"
+      ]
+    },
+    "public.rol_parte": {
+      "name": "rol_parte",
+      "schema": "public",
+      "values": [
+        "juez",
+        "secretario",
+        "fiscal",
+        "defensor",
+        "acusado",
+        "victima",
+        "querellante",
+        "testigo",
+        "perito",
+        "operador"
+      ]
+    },
+    "public.rol_usuario": {
+      "name": "rol_usuario",
       "schema": "public",
       "values": [
         "admin",
-        "host",
-        "viewer"
+        "juez",
+        "secretario",
+        "operador",
+        "consulta"
+      ]
+    },
+    "public.tipo_documento": {
+      "name": "tipo_documento",
+      "schema": "public",
+      "values": [
+        "acta_integral",
+        "resumen_simple",
+        "evaluacion_predictiva",
+        "reporte_diario"
+      ]
+    },
+    "public.tipo_marcador": {
+      "name": "tipo_marcador",
+      "schema": "public",
+      "values": [
+        "apertura",
+        "alegato_inicial_acusacion",
+        "alegato_inicial_defensa",
+        "declaracion_imputado",
+        "prueba_testifical",
+        "prueba_pericial",
+        "prueba_documental",
+        "incidente",
+        "objecion",
+        "receso",
+        "alegato_final_acusacion",
+        "alegato_final_defensa",
+        "derecho_ultima_palabra",
+        "fallo",
+        "cierre",
+        "otro"
       ]
     }
   },
