@@ -27,7 +27,7 @@ export default function Login() {
       if (apiError) throw new Error(apiError.value?.message || 'Error al iniciar sesión')
       
       if (data?.user && data?.accessToken) {
-        setAuth(data.user, data.accessToken)
+        setAuth(data.user as any, data.accessToken)
         navigate('/')
       } else {
         throw new Error('Respuesta del servidor incompleta')

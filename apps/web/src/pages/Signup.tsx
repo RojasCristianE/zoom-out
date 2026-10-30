@@ -29,7 +29,7 @@ export default function Signup() {
       if (apiError) throw new Error(apiError.value?.message || 'Error al crear cuenta')
       
       if (data?.user && data?.accessToken) {
-        setAuth(data.user, data.accessToken)
+        setAuth(data.user as any, data.accessToken)
         navigate('/')
       } else {
         throw new Error('Respuesta del servidor incompleta')
