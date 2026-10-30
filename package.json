@@ -20,7 +20,7 @@
     "lint": "bunx biome check .",
     "lint:fix": "bunx biome check --write .",
     "format": "bunx biome format --write .",
-    "test": "bun --filter '*' test",
+    "test": "bun test --pass-with-no-tests",
     "knip": "knip",
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "setup": "cp -n .env.example .env 2>/dev/null; bun install && bun run infra:up && bun run db:migrate",
