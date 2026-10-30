@@ -4,129 +4,97 @@ import {
   EgressClient,
   EncodedFileOutput,
   EncodedFileType,
-  EncodingOptionsPreset,
+  AudioCodec,
   S3Upload,
   WebhookReceiver,
-} from 'livekit-server-sdk'
-import { env } from './env'
+  TrackSource,
+} from 'livekit-server-sdk';
+import { env } from './env';
 
 // ──────────────────────────────────────────────
-// LiveKit Server Integration
+// LiveKit Server Integration — Audio Judicial Exclusivo
 // ──────────────────────────────────────────────
 
-const livekitHost = env.LIVEKIT_URL.replace('ws://', 'http://').replace('wss://', 'https://')
-
-// ──── Clientes ────
+const livekitHost = env.LIVEKIT_URL.replace('ws://', 'http://').replace('wss://', 'https://');
 
 export const roomService = new RoomServiceClient(
   livekitHost,
   env.LIVEKIT_API_KEY,
   env.LIVEKIT_API_SECRET,
-)
+);
 
 export const egressClient = new EgressClient(
   livekitHost,
   env.LIVEKIT_API_KEY,
   env.LIVEKIT_API_SECRET,
-)
+);
 
 export const webhookReceiver = new WebhookReceiver(
   env.LIVEKIT_API_KEY,
   env.LIVEKIT_API_SECRET,
-)
-
-// ──── Tokens ────
+);
 
 /**
- * Genera un JWT access token para que un participante se una a una sala LiveKit.
+ * Token de LiveKit restringido estrictamente a audio (micrófono). Cero cámara ni screen share.
  */
-export async function createLivekitToken(
+export async function crearTokenLivekitAudio(
   roomName: string,
   participantIdentity: string,
+  participantName: string,
   options?: {
-    canPublish?: boolean
-    canSubscribe?: boolean
-    canPublishData?: boolean
+    canPublish?: boolean;
+    canSubscribe?: boolean;
+    metadata?: Record<string, unknown>;
   },
 ): Promise<string> {
   const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
     identity: participantIdentity,
-  })
+    name: participantName,
+    metadata: options?.metadata ? JSON.stringify(options.metadata) : undefined,
+  });
 
   at.addGrant({
     roomJoin: true,
     room: roomName,
     canPublish: options?.canPublish ?? true,
     canSubscribe: options?.canSubscribe ?? true,
-    canPublishData: options?.canPublishData ?? true,
-  })
+    canPublishData: true,
+    canPublishSources: [TrackSource.MICROPHONE],
+  });
 
-  return await at.toJwt()
-}
-
-// ──── Room Management ────
-
-/**
- * Crea una sala en el servidor LiveKit.
- */
-export async function createLivekitRoom(
-  name: string,
-  options?: { maxParticipants?: number; emptyTimeout?: number },
-) {
-  return await roomService.createRoom({
-    name,
-    maxParticipants: options?.maxParticipants ?? 10,
-    emptyTimeout: options?.emptyTimeout ?? 300,
-  })
+  return await at.toJwt();
 }
 
 /**
- * Elimina una sala del servidor LiveKit.
+ * Inicia grabación compuesta de audio exclusiva en OGG / Opus hacia MinIO.
  */
-export async function deleteLivekitRoom(name: string) {
-  return await roomService.deleteRoom(name)
-}
-
-/**
- * Lista los participantes activos de una sala LiveKit.
- */
-export async function listLivekitParticipants(roomName: string) {
-  return await roomService.listParticipants(roomName)
-}
-
-// ──── Egress (Grabación) ────
-
-/**
- * Inicia la grabación compuesta de una sala (video + audio) y sube a MinIO.
- * Retorna el EgressInfo con el egressId.
- */
-export async function startRoomRecording(roomName: string, filepath: string) {
+export async function iniciarEgressAudio(roomName: string, s3Filepath: string) {
   const s3Output = new S3Upload({
     accessKey: env.MINIO_ACCESS_KEY,
     secret: env.MINIO_SECRET_KEY,
-    // Egress corre dentro de Docker: usar hostname interno del servicio MinIO
     endpoint: `http://${env.MINIO_INTERNAL_ENDPOINT}:${env.MINIO_PORT}`,
-    bucket: env.MINIO_BUCKET_RECORDINGS,
+    bucket: env.MINIO_BUCKET_AUDIENCIAS,
     forcePathStyle: true,
-  })
+  });
 
   const fileOutput = new EncodedFileOutput({
-    fileType: EncodedFileType.MP4,
-    filepath,
+    fileType: EncodedFileType.OGG,
+    filepath: s3Filepath,
     output: { case: 's3', value: s3Output },
-  })
+  });
 
-  return await egressClient.startRoomCompositeEgress(roomName, {
-    file: fileOutput,
-  }, {
-    layout: 'speaker-dark',
-    encodingOptions: EncodingOptionsPreset.H264_720P_30,
-  })
+  return await egressClient.startRoomCompositeEgress(
+    roomName,
+    {
+      file: fileOutput,
+    },
+    {
+      audioOnly: true,
+      customBaseUrl: undefined,
+    },
+  );
 }
 
-/**
- * Detiene una grabación activa por su egressId.
- */
-export async function stopRecording(egressId: string) {
-  return await egressClient.stopEgress(egressId)
+export async function detenerEgress(egressId: string) {
+  return await egressClient.stopEgress(egressId);
 }

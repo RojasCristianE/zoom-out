@@ -1,68 +1,79 @@
-import { env } from './env'
-import type { TranscriptSegment } from '@zoom-out/shared-types'
+import { env } from './env';
+import type { TranscripcionSegmentoDTO } from '@zoom-out/shared-types';
 
-// ──────────────────────────────────────────────
-// Faster-Whisper Client (OpenAI-compatible API)
-// ──────────────────────────────────────────────
-
-interface WhisperVerboseSegment {
-  id: number
-  start: number
-  end: number
-  text: string
-  tokens: number[]
-  temperature: number
-  avg_logprob: number
-  compression_ratio: number
-  no_speech_prob: number
+export interface TranscribirAudioOptions {
+  language?: string;
+  promptNombres?: string; // Vocabulario inicial (juez, partes, términos CPP)
 }
 
-interface WhisperVerboseResponse {
-  task: string
-  language: string
-  duration: number
-  text: string
-  segments: WhisperVerboseSegment[]
+export interface TranscripcionResultado {
+  textoCompleto: string;
+  duracionSegundos: number;
+  idioma: string;
+  segmentos: Array<{
+    inicioMs: number;
+    finMs: number;
+    texto: string;
+    confianza?: number;
+  }>;
 }
 
 /**
- * Envía un archivo de audio/video a Faster-Whisper para transcripción.
- * Usa el endpoint OpenAI-compatible /v1/audio/transcriptions.
+ * Transcribe un buffer de audio directamente a través de Faster-Whisper.
+ * No requiere extracción de video (el input ya es audio puro OGG/Opus o WAV).
  */
-export async function transcribeAudio(
-  fileBuffer: Buffer,
-  filename: string,
-  language = 'es',
-): Promise<{ segments: TranscriptSegment[]; language: string; duration: number }> {
-  const formData = new FormData()
+export async function transcribirAudioJudicial(
+  audioBuffer: Buffer,
+  filename = 'audio.ogg',
+  options?: TranscribirAudioOptions,
+): Promise<TranscripcionResultado> {
+  const formData = new FormData();
 
-  const blob = new Blob([new Uint8Array(fileBuffer)], { type: 'application/octet-stream' })
-  formData.append('file', blob, filename)
-  formData.append('response_format', 'verbose_json')
-  formData.append('language', language)
+  const blob = new Blob([new Uint8Array(audioBuffer)], { type: 'audio/ogg' });
+  formData.append('file', blob, filename);
+  formData.append('response_format', 'verbose_json');
+  formData.append('language', options?.language ?? 'es');
+
+  if (options?.promptNombres) {
+    formData.append('prompt', options.promptNombres);
+  }
 
   const response = await fetch(`${env.WHISPER_API_URL}/v1/audio/transcriptions`, {
     method: 'POST',
     body: formData,
-  })
+  });
 
   if (!response.ok) {
-    const errorText = await response.text()
-    throw new Error(`Whisper API error (${response.status}): ${errorText}`)
+    const errorText = await response.text();
+    throw new Error(
+      `Error de Faster-Whisper (${response.status} ${response.statusText}): ${errorText}`,
+    );
   }
 
-  const result = (await response.json()) as WhisperVerboseResponse
+  const data = (await response.json()) as {
+    text: string;
+    duration: number;
+    language: string;
+    segments: Array<{
+      id: number;
+      start: number; // segundos
+      end: number; // segundos
+      text: string;
+      avg_logprob?: number;
+    }>;
+  };
 
-  // Mapear segmentos de Whisper a nuestro tipo
-  const segments: TranscriptSegment[] = result.segments.map((seg) => ({
-    start: seg.start,
-    end: seg.end,
-    text: seg.text.trim(),
-  }))
+  const segmentos = (data.segments || []).map((s) => ({
+    inicioMs: Math.round(s.start * 1000),
+    finMs: Math.round(s.end * 1000),
+    texto: s.text.trim(),
+    confianza: s.avg_logprob ? Math.round(Math.min(100, Math.max(0, (s.avg_logprob + 1) * 100))) : undefined,
+  }));
 
   return {
-    segments,
-    language: result.language,
-    duration: result.duration,
-  }
+    textoCompleto: data.text.trim(),
+    duracionSegundos: Math.round(data.duration || 0),
+    idioma: data.language || 'es',
+    segmentos,
+  };
 }

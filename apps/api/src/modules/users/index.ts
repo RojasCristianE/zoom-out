@@ -36,7 +36,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
           email: body.email,
           passwordHash,
           displayName: body.displayName,
-          role: body.role || 'viewer',
+          role: (body.role as any) || 'consulta',
         })
         .returning()
 
@@ -88,7 +88,7 @@ export const usersModule = new Elysia({ prefix: '/users' })
 
       const [updated] = await db
         .update(users)
-        .set({ role: body.role, updatedAt: new Date() })
+        .set({ role: body.role as any, updatedAt: new Date() })
         .where(eq(users.id, params.id))
         .returning({
           id: users.id,

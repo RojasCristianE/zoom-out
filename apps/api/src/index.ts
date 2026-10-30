@@ -1,48 +1,67 @@
-import { Elysia } from 'elysia'
-import { cors } from '@elysiajs/cors'
-import { authModule } from './modules/auth'
-import { roomsModule } from './modules/rooms'
-import { recordingsModule } from './modules/recordings'
-import { usersModule } from './modules/users'
-import { webhooksModule } from './modules/webhooks'
-import { startTranscriptionWorker } from './workers/transcription.worker'
-import { env } from './lib/env'
+import { Elysia } from 'elysia';
+import { cors } from '@elysiajs/cors';
+import { authModule } from './modules/auth';
+import { catalogosRoutes } from './modules/catalogos';
+import { expedientesRoutes } from './modules/expedientes';
+import { agendaRoutes } from './modules/agenda';
+import { audienciasRoutes } from './modules/audiencias';
+import { marcadoresRoutes } from './modules/marcadores';
+import { bibliotecaRoutes } from './modules/biblioteca';
+import { documentosRoutes } from './modules/documentos';
+import { reportesRoutes } from './modules/reportes';
+import { webhooksModule } from './modules/webhooks';
+import { usersModule } from './modules/users';
+import { iniciarWorkerTranscripcion } from './workers/transcription.worker';
+import { iniciarWorkerIa } from './workers/ia.worker';
+import { env } from './lib/env';
 
 // ──────────────────────────────────────────────
-// API Zoom-Out — Orquestador ElysiaJS
+// API Judicial — Orquestador ElysiaJS
 // ──────────────────────────────────────────────
 
 const api = new Elysia()
-  .get('/health', () => ({ status: 'ok', timestamp: new Date().toISOString() }))
-  .use(webhooksModule) // Webhooks ANTES de auth (ruta pública con validación por firma)
+  .get('/health', () => ({
+    status: 'ok',
+    sistema: 'Audiencias Judiciales Nicaragua',
+    tz: env.TZ_JUZGADO,
+    timestamp: new Date().toISOString(),
+  }))
+  .use(webhooksModule)
   .use(authModule)
-  .use(roomsModule)
-  .use(recordingsModule)
-  .use(usersModule)
+  .use(catalogosRoutes)
+  .use(expedientesRoutes)
+  .use(agendaRoutes)
+  .use(audienciasRoutes)
+  .use(marcadoresRoutes)
+  .use(bibliotecaRoutes)
+  .use(documentosRoutes)
+  .use(reportesRoutes)
+  .use(usersModule);
 
 const app = new Elysia()
   .use(
     cors({
-      origin: true, // Permite cualquier origen en desarrollo
+      origin: true,
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization'],
-    })
+    }),
   )
-  .get('/', () => ({ 
-    message: 'Zoom-Out API is running', 
-    web_app: env.WEB_URL,
-    api_base: '/api' 
+  .get('/', () => ({
+    message: 'Sistema de Gestión y Automatización IA de Audiencias Judiciales',
+    jurisdiccion: env.JURISDICCION_DEFAULT,
+    tz: env.TZ_JUZGADO,
+    api_base: '/api',
   }))
-  .group('/api', app => app.use(api))
+  .group('/api', (group) => group.use(api))
   .listen({
-    port: Number(env.API_PORT) || 3000,
-    hostname: '0.0.0.0'
-  })
+    port: Number(process.env.API_PORT) || 3000,
+    hostname: '0.0.0.0',
+  });
 
-console.log(`🚀 Zoom-Out API running at http://localhost:${app.server?.port}`)
+console.log(`🏛️ API Judicial corriendo en http://localhost:${app.server?.port}`);
 
-// Iniciar worker de transcripciones
-startTranscriptionWorker()
+// Iniciar workers en segundo plano
+iniciarWorkerTranscripcion();
+iniciarWorkerIa();
 
-// ⚡ Exportar el tipo — este ES el contrato de la API para Eden Treaty
-export type App = typeof api
+export type App = typeof api;

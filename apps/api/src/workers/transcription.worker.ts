@@ -1,57 +1,43 @@
-import { Worker, Queue } from 'bullmq'
-import Redis from 'ioredis'
-import { processRecordingTranscription } from '@api/services/transcription.service'
-import { env } from '@api/lib/env'
+import { Worker, Queue } from 'bullmq';
+import Redis from 'ioredis';
+import { env } from '@api/lib/env';
+import { procesarTranscripcionGrabacion } from '@api/services/transcripcion.service';
 
-// ──────────────────────────────────────────────
-// Worker de Transcripción — BullMQ
-// ──────────────────────────────────────────────
-
-// Configuración de Redis (REDIS_URL; por defecto redis local en modo dev)
 const redisConnection = new Redis(env.REDIS_URL, {
-  maxRetriesPerRequest: null, // Requerido por BullMQ
-})
+  maxRetriesPerRequest: null,
+});
 
-export const QUEUE_NAME = 'transcription-queue'
+export const COLA_TRANSCRIPCIONES = 'transcripciones-judiciales';
 
-// Cola para encolar trabajos
-export const transcriptionQueue = new Queue(QUEUE_NAME, {
+export const colaTranscripciones = new Queue(COLA_TRANSCRIPCIONES, {
   connection: redisConnection,
-})
+});
 
-let worker: Worker | null = null
+let worker: Worker | null = null;
 
-export function startTranscriptionWorker() {
-  if (worker) return
+export function iniciarWorkerTranscripcion() {
+  if (worker) return;
 
-  console.log('👷 Iniciando worker de transcripciones (BullMQ)...')
+  console.log('👷 Iniciando Worker de Transcripción Judicial (Faster-Whisper)...');
 
   worker = new Worker(
-    QUEUE_NAME,
+    COLA_TRANSCRIPCIONES,
     async (job) => {
-      const { recordingId } = job.data
-      console.log(`[Job ${job.id}] Procesando recording: ${recordingId}`)
-      await processRecordingTranscription(recordingId)
+      const { grabacionId } = job.data;
+      console.log(`[Job ${job.id}] Transcribiendo grabación: ${grabacionId}`);
+      await procesarTranscripcionGrabacion(grabacionId);
     },
     {
       connection: redisConnection,
-      concurrency: 1, // Procesar 1 a la vez dado que usa CPU y ffmpeg
+      concurrency: 1, // CPU intensivo en Whisper
     },
-  )
+  );
 
   worker.on('completed', (job) => {
-    console.log(`[Job ${job.id}] Completado exitosamente`)
-  })
+    console.log(`[Job ${job.id}] Transcripción finalizada exitosamente.`);
+  });
 
   worker.on('failed', (job, err) => {
-    console.error(`[Job ${job?.id}] Falló con error:`, err)
-  })
-}
-
-export function stopTranscriptionWorker() {
-  if (worker) {
-    console.log('Deteniendo worker de transcripciones...')
-    worker.close()
-    worker = null
-  }
+    console.error(`[Job ${job?.id}] Transcripción fallida:`, err);
+  });
 }

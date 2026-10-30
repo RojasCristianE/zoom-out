@@ -21,7 +21,12 @@ export const authModule = new Elysia({ prefix: '/auth' })
       }
 
       const accessToken = await signJwt(
-        { sub: user.id, email: user.email, role: user.role },
+        {
+          sub: user.id,
+          email: user.email,
+          role: user.role,
+          organoJudicialId: user.organoJudicialId,
+        },
         30 * 24 * 3600, // 1 mes
       )
 
@@ -32,6 +37,7 @@ export const authModule = new Elysia({ prefix: '/auth' })
           email: user.email,
           displayName: user.displayName,
           role: user.role,
+          organoJudicialId: user.organoJudicialId,
           avatarUrl: user.avatarUrl,
           createdAt: user.createdAt.toISOString(),
           updatedAt: user.updatedAt.toISOString(),
@@ -56,11 +62,16 @@ export const authModule = new Elysia({ prefix: '/auth' })
         email: body.email,
         passwordHash,
         displayName: body.displayName,
-        role: 'viewer' // Por defecto rol viewer
+        role: 'consulta'
       }).returning()
 
       const accessToken = await signJwt(
-        { sub: user.id, email: user.email, role: user.role },
+        {
+          sub: user.id,
+          email: user.email,
+          role: user.role,
+          organoJudicialId: user.organoJudicialId,
+        },
         30 * 24 * 3600, // 1 mes
       )
 
@@ -71,6 +82,7 @@ export const authModule = new Elysia({ prefix: '/auth' })
           email: user.email,
           displayName: user.displayName,
           role: user.role,
+          organoJudicialId: user.organoJudicialId,
           avatarUrl: user.avatarUrl,
           createdAt: user.createdAt.toISOString(),
           updatedAt: user.updatedAt.toISOString(),
