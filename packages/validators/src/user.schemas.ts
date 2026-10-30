@@ -6,6 +6,10 @@ import { t } from 'elysia'
 
 export const UserRoleSchema = t.Union([
   t.Literal('admin'),
+  t.Literal('juez'),
+  t.Literal('secretario'),
+  t.Literal('operador'),
+  t.Literal('consulta'),
   t.Literal('host'),
   t.Literal('viewer'),
 ])
