@@ -65,26 +65,78 @@ zoom-out/
 Asegúrate de tener instalados:
 - [Bun](https://bun.sh/)
 - [Docker](https://www.docker.com/) y Docker Compose
+- [mkcert](https://github.com/FiloSottile/mkcert) — solo para entrar desde otros dispositivos por HTTPS
 - Git
 
-### 2. Instalación y Setup
-Clona el repositorio e inicializa la infraestructura y la base de datos:
+### 2. Primera vez (inicialización)
+Clona el repositorio e inicializa todo: crea el `.env`, instala dependencias, levanta la infraestructura, aplica migraciones y prepara el acceso desde la red local.
 
 ```bash
 git clone https://github.com/RojasCristianE/zoom-out.git
 cd zoom-out
 
-# Instala dependencias, levanta contenedores, y aplica migraciones
+# 1. .env + dependencias + contenedores (Postgres, Redis, LiveKit, Egress, MinIO, Caddy, Whisper) + migraciones
 bun run setup
+
+# 2. Usuario administrador (admin@zoomout.local / admin123)
+bun run db:seed
+
+# 3. IP del host en la LAN, node_ip de LiveKit y certificados TLS
+bun run setup:lan
 ```
 
-### 3. Desarrollo
-Para levantar todo el entorno de desarrollo (API y Web):
+> **Nota:** la primera corrida descarga ~2 GB de imágenes Docker (Whisper es la más pesada).
+
+**Verificación:**
 
 ```bash
-bun run dev
+docker compose -f infra/docker-compose.yml --env-file .env ps   # 8 servicios "Up"
+curl -s localhost:3000/api/health                               # {"status":"ok",...}
+grep node_ip infra/livekit/livekit.yaml                         # tu IP real de la LAN
 ```
-> **Nota:** Si Docker ya está corriendo, puedes usar `bun run dev:apps` para levantar solo los servidores de desarrollo de Bun y Vite.
+
+### 3. Rutina diaria
+Con la máquina ya inicializada, solo hay que levantar infraestructura y apps:
+
+```bash
+# Infraestructura + API + Web
+bun run dev -- --no-camera
+
+# Si Docker ya está corriendo (por ejemplo tras reiniciar), solo las apps
+bun run dev:apps
+```
+
+> **Nota:** `bun run dev` a secas exige la cámara Android de desarrollo (v4l2loopback + adb + scrcpy). Con `--no-camera` se saltea ese paso.
+
+```bash
+bun run infra:logs   # Logs de los contenedores
+bun run db:studio    # Explorador visual de la BD
+bun run infra:down   # Apagar (los datos persisten en los volúmenes pg_data y minio_data)
+```
+
+`bun run setup` es idempotente: no sobrescribe el `.env`, no reaplica migraciones y solo levanta lo que falta.
+
+### 4. Acceso desde otros dispositivos (red local)
+
+| Servicio | URL |
+| --- | --- |
+| Web | `https://<IP>` |
+| LiveKit (señalización) | `wss://<IP>:7443` |
+| MinIO Console | `http://<IP>:9001` |
+
+- Instalar `infra/certs/rootCA.pem` como CA en el dispositivo (Android):
+  ```bash
+  adb push infra/certs/rootCA.pem /sdcard/rootCA.pem
+  ```
+- Abrir en el firewall: `443` y `7443` (TCP) + `50000-50060` (UDP, medios ICE).
+- `scripts/setup-lan.sh` renderiza `infra/livekit/{livekit,egress}.yaml` desde sus plantillas usando `HOST_IP`; esos archivos son generados y no se versionan.
+- Si la IP detectada es la de una interfaz virtual (VPN, docker0), forzala:
+
+  ```bash
+  HOST_IP=192.168.x.x bun run setup:lan
+  ```
+
+- Volvé a correr `bun run setup:lan` cuando cambie la IP del host.
 
 ## 🛠️ Flujo de Desarrollo
 
@@ -106,6 +158,7 @@ Al realizar un commit o merge, los siguientes procesos se ejecutan en segundo pl
 Comandos útiles para la gestión de la BD con Drizzle:
 - `bun run db:generate` — Genera nuevas migraciones.
 - `bun run db:migrate` — Aplica las migraciones a la BD.
+- `bun run db:seed` — Crea el usuario administrador inicial.
 - `bun run db:studio` — Abre el explorador visual de Drizzle.
 
 ---
