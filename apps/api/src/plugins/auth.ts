@@ -5,17 +5,18 @@ import type { AuthTokenPayload, RolUsuario } from '@zoom-out/shared-types';
 export const authPlugin = new Elysia({ name: 'plugin.auth' })
   .derive({ as: 'scoped' }, async ({ request, set }) => {
     const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (!authHeader) {
       return { usuario: null };
     }
 
-    const token = authHeader.slice(7);
+    // Normalizar si el header viene duplicado por proxies o clients (e.g. "Bearer X, Bearer X")
+    const primerToken = authHeader.split(',')[0].trim();
+    if (!primerToken.startsWith('Bearer ')) {
+      return { usuario: null };
+    }
+
+    const token = primerToken.slice(7).trim();
     const payload = await verifyJwt<AuthTokenPayload>(token);
-    if (!payload) {
-      set.status = 401;
-      return { usuario: null };
-    }
-
     return { usuario: payload };
   })
   .macro(({ onBeforeHandle }) => ({
