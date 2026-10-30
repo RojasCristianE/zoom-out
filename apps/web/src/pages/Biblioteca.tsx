@@ -17,22 +17,28 @@ function formatearHora(val: unknown): string {
 
 export default function BibliotecaPage() {
   const [arbol, setArbol] = useState<any[]>([]);
+  const [documentos, setDocumentos] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState('');
   const [resultados, setResultados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    cargarArbol();
+    cargarDatos();
   }, []);
 
-  const cargarArbol = async () => {
+  const cargarDatos = async () => {
     setLoading(true);
     try {
-      const res = await api.biblioteca.arbol.get({
-        $query: { modo: 'caso' },
-      });
-      if (res.data) setArbol(res.data as any[]);
+      const [resArbol, resDocs] = await Promise.all([
+        api.biblioteca.arbol.get({
+          $query: { modo: 'caso' },
+        }),
+        (api.biblioteca as any).documentos.get(),
+      ]);
+
+      if (resArbol.data) setArbol(resArbol.data as any[]);
+      if (resDocs.data) setDocumentos(resDocs.data as any[]);
     } catch (err) {
       console.error('Error cargando biblioteca:', err);
     } finally {
@@ -116,6 +122,76 @@ export default function BibliotecaPage() {
           </div>
         </div>
       )}
+
+      {/* Documentos Judiciales Generados */}
+      <div className="border border-border rounded-lg p-5 bg-card space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Documentos y Actas Judiciales Oficiales ({documentos.length})
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Actas compiladas en formato PDF y evaluaciones de inteligencia artificial
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Cargando documentos...</p>
+        ) : documentos.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No hay documentos generados actualmente.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {documentos.map((doc) => {
+              const fecha = formatearFecha(doc.createdAt || doc.audienciaFecha);
+              return (
+                <div
+                  key={doc.id}
+                  className="p-4 border border-border rounded-lg bg-background flex flex-col justify-between gap-3 hover:border-primary/50 transition"
+                >
+                  <div>
+                    <div className="flex justify-between items-start gap-2 mb-1">
+                      <span className="font-semibold text-sm line-clamp-1">{doc.titulo}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary whitespace-nowrap">
+                        {doc.tipo}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Expediente: <span className="font-medium text-foreground">{doc.expedienteNumero}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground line-clamp-1">{doc.expedienteAsunto}</p>
+                    <div className="text-[11px] font-mono text-muted-foreground mt-2">
+                      Fecha: {fecha} • Hash: {doc.sha256Pdf ? doc.sha256Pdf.slice(0, 10) + '...' : 'Pendiente'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <button
+                      onClick={() => navigate(`/audiencia/${doc.audienciaId}`)}
+                      className="text-xs text-muted-foreground hover:text-foreground font-medium"
+                    >
+                      Ir a Audiencia →
+                    </button>
+                    {doc.urlPdf ? (
+                      <a
+                        href={doc.urlPdf}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded text-xs font-semibold hover:opacity-90 transition shadow-sm"
+                      >
+                        <span>📄</span>
+                        <span>Ver / Descargar PDF</span>
+                      </a>
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">PDF no disponible</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Vista Jerárquica */}
       <div className="border border-border rounded-lg p-5 bg-card space-y-4">

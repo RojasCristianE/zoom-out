@@ -81,6 +81,11 @@ export const audienciasRoutes = new Elysia({ prefix: '/audiencias' })
         .from(documentos)
         .where(eq(documentos.audienciaId, id));
 
+      const documentosConUrl = listaDocumentos.map((doc) => ({
+        ...doc,
+        urlPdf: doc.s3KeyPdf ? `/api/documentos/${doc.id}/pdf` : null,
+      }));
+
       const [transcripcion] = await db
         .select()
         .from(transcripciones)
@@ -96,7 +101,7 @@ export const audienciasRoutes = new Elysia({ prefix: '/audiencias' })
         partes,
         grabacion,
         marcadores: listaMarcadores,
-        documentos: listaDocumentos,
+        documentos: documentosConUrl,
         transcripcion,
       };
     },

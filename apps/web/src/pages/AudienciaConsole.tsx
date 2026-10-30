@@ -236,14 +236,25 @@ export default function AudienciaConsole() {
                     <span className="font-medium">{d.titulo}</span>
                     <span className="text-xs text-muted-foreground ml-2">({d.tipo})</span>
                   </div>
-                  {d.urlPdf && (
+                  {d.urlPdf ? (
                     <a
                       href={d.urlPdf}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-primary font-medium hover:underline"
+                      className="px-3 py-1 bg-primary text-primary-foreground rounded text-xs font-semibold hover:opacity-90 transition shadow-sm inline-flex items-center gap-1"
                     >
-                      Descargar PDF
+                      <span>📄</span>
+                      <span>Descargar PDF</span>
+                    </a>
+                  ) : (
+                    <a
+                      href={`/api/documentos/${d.id}/pdf`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1 bg-primary text-primary-foreground rounded text-xs font-semibold hover:opacity-90 transition shadow-sm inline-flex items-center gap-1"
+                    >
+                      <span>📄</span>
+                      <span>Descargar PDF</span>
                     </a>
                   )}
                 </div>

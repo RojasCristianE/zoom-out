@@ -3,13 +3,69 @@ import { db } from '../../lib/db';
 import { documentos, audiencias, auditoria } from '../../../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { authPlugin } from '../../plugins/auth';
-import { getPresignedUrl } from '../../lib/minio';
+import { getPresignedUrl, getObjectBuffer } from '../../lib/minio';
 import { env } from '../../lib/env';
 import { GenerarDocumentoSchema, AprobarDocumentoSchema } from '@zoom-out/validators';
 import { colaDocumentosIa } from '../../workers/ia.worker';
 
 export const documentosRoutes = new Elysia({ prefix: '/documentos' })
   .use(authPlugin)
+  // Descarga / visualización directa en stream del PDF con control de acceso
+  .get(
+    '/:id/pdf',
+    async ({ params: { id }, usuario, set, request }) => {
+      const [doc] = await db
+        .select()
+        .from(documentos)
+        .where(eq(documentos.id, id))
+        .limit(1);
+
+      if (!doc || !doc.s3KeyPdf) {
+        set.status = 404;
+        return { error: 'Documento o archivo PDF no encontrado' };
+      }
+
+      // Restricción estricta de evaluación predictiva (solo juez y admin)
+      if (
+        doc.tipo === 'evaluacion_predictiva' &&
+        !['admin', 'juez'].includes(usuario!.role)
+      ) {
+        set.status = 403;
+        return { error: 'Acceso restringido: documento reservado exclusivamente al Juez' };
+      }
+
+      // Auditoría de acceso si es evaluación predictiva
+      if (doc.tipo === 'evaluacion_predictiva') {
+        await db.insert(auditoria).values({
+          usuarioId: usuario!.sub,
+          accion: 'descargar_evaluacion_ia_pdf',
+          recursoTipo: 'documento',
+          recursoId: doc.id,
+          ipOrigen: request.headers.get('x-forwarded-for') || '127.0.0.1',
+          userAgent: request.headers.get('user-agent'),
+        });
+      }
+
+      try {
+        const buffer = await getObjectBuffer(env.MINIO_BUCKET_AUDIENCIAS, doc.s3KeyPdf);
+        const filename = `${doc.tipo}_${doc.id.slice(0, 8)}.pdf`;
+
+        set.headers['Content-Type'] = 'application/pdf';
+        set.headers['Content-Disposition'] = `inline; filename="${filename}"`;
+        return new Response(new Uint8Array(buffer), {
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `inline; filename="${filename}"`,
+          },
+        });
+      } catch (err) {
+        console.error('Error obteniendo PDF desde MinIO:', err);
+        set.status = 500;
+        return { error: 'Error al recuperar el archivo PDF desde el almacenamiento' };
+      }
+    },
+    { requiereAuth: true },
+  )
   .get(
     '/:id',
     async ({ params: { id }, usuario, set, request }) => {
@@ -45,10 +101,7 @@ export const documentosRoutes = new Elysia({ prefix: '/documentos' })
         });
       }
 
-      let urlPdf: string | undefined;
-      if (doc.s3KeyPdf) {
-        urlPdf = await getPresignedUrl(env.MINIO_BUCKET_AUDIENCIAS, doc.s3KeyPdf);
-      }
+      const urlPdf = `/api/documentos/${doc.id}/pdf`;
 
       return {
         ...doc,

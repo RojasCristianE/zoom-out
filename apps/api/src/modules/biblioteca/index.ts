@@ -9,6 +9,7 @@ import {
   grabaciones,
   transcripcionSegmentos,
   transcripciones,
+  documentos,
 } from '../../../drizzle/schema';
 import { eq, and, sql, desc } from 'drizzle-orm';
 import { authPlugin } from '../../plugins/auth';
@@ -16,6 +17,44 @@ import { BusquedaAudienciasQuerySchema } from '@zoom-out/validators';
 
 export const bibliotecaRoutes = new Elysia({ prefix: '/biblioteca' })
   .use(authPlugin)
+  // Listar documentos judiciales generados con metadatos de caso y enlace de descarga
+  .get(
+    '/documentos',
+    async ({ usuario }) => {
+      const docs = await db
+        .select({
+          id: documentos.id,
+          audienciaId: documentos.audienciaId,
+          tipo: documentos.tipo,
+          estado: documentos.estado,
+          titulo: documentos.titulo,
+          s3KeyPdf: documentos.s3KeyPdf,
+          sha256Pdf: documentos.sha256Pdf,
+          createdAt: documentos.createdAt,
+          expedienteNumero: expedientes.numero,
+          expedienteAsunto: expedientes.asunto,
+          materiaNombre: materias.nombre,
+          audienciaFecha: audiencias.fechaProgramada,
+        })
+        .from(documentos)
+        .innerJoin(audiencias, eq(documentos.audienciaId, audiencias.id))
+        .innerJoin(expedientes, eq(audiencias.expedienteId, expedientes.id))
+        .innerJoin(materias, eq(expedientes.materiaId, materias.id))
+        .orderBy(desc(documentos.createdAt));
+
+      // Filtrar evaluación predictiva para no jueces/admins
+      const esJuezOAdmin = ['admin', 'juez'].includes(usuario?.role || '');
+      const filtrados = docs
+        .filter((d) => esJuezOAdmin || d.tipo !== 'evaluacion_predictiva')
+        .map((d) => ({
+          ...d,
+          urlPdf: d.s3KeyPdf ? `/api/documentos/${d.id}/pdf` : null,
+        }));
+
+      return filtrados;
+    },
+    { requiereAuth: true },
+  )
   // Árbol jerárquico por caso o cronológico
   .get(
     '/arbol',
